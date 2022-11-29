@@ -1,0 +1,26 @@
+{
+    "name": "pyncer/data",
+    "type": "library",
+    "description": "Pyncer library for handling data.",
+    "homepage": "https://pyncer.com/data",
+    "license": "Unlicense",
+    "require": {
+        "php": ">=8.1",
+        "psr/http-message": "^1.0.1",
+        "pyncer/core": "*",
+        "pyncer/database": "*",
+        "pyncer/exception": "*",
+        "pyncer/iterable": "*",
+        "pyncer/utility": "*",
+        "pyncer/validation": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Pyncer\\Data\\": "src/"
+        }
+    },
+    "support": {
+        "issues": "https://github.com/pyncerrc/pyncer-data/issues",
+        "source": "https://github.com/pyncerrc/pyncer-data"
+    }
+}
