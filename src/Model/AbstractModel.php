@@ -112,7 +112,7 @@ abstract class AbstractModel extends Map implements ModelInterface
         return $this;
     }
 
-    public function getData($format = false): array
+    public function getData(): array
     {
         if ($this->isDefault) {
             return parent::getData();

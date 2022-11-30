@@ -245,7 +245,8 @@ abstract class AbstractMapper implements MapperInterface
 
         return $this->getConnection()
             ->update($this->getTable())
-            ->values($data)->where([
+            ->values($data)
+            ->where([
                 'id' => $model->getId()
             ])
             ->execute();
@@ -347,7 +348,9 @@ abstract class AbstractMapper implements MapperInterface
                 continue;
             }
 
-            if (substr($key, -10) === '_date_time') {
+            if (is_array($value)) {
+                $data[$key] = json_encode($value);
+            } elseif (substr($key, -10) === '_date_time') {
                 $data[$key] = $this->getConnection()->dateTime($value);
             } elseif (substr($key, -5) === '_date') {
                 $data[$key] = $this->getConnection()->date($value);
