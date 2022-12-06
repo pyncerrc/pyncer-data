@@ -9,7 +9,7 @@ use Pyncer\Data\Model\ModelInterface;
 use Pyncer\Data\OptionsQueryParam;
 use Pyncer\Data\OrderByQueryParam;
 use Pyncer\Database\ConnectionInterface;
-use Pyncer\Database\Query\SelectQueryInterface;
+use Pyncer\Database\Record\SelectQueryInterface;
 use Pyncer\Exception\InvalidArgumentException;
 use Pyncer\Http\Message\RequestData;
 

@@ -4,7 +4,7 @@ namespace Pyncer\Data\Mapper\Query;
 use Pyncer\Data\Mapper\Query\MapperQueryInterface;
 use Pyncer\Data\Model\ModelInterface;
 use Pyncer\Database\ConnectionInterface;
-use Pyncer\Database\Query\SelectQueryInterface;
+use Pyncer\Database\Record\SelectQueryInterface;
 
 abstract class AbstractMapperQuery implements MapperQueryInterface
 {

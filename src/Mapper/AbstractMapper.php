@@ -10,7 +10,7 @@ use Pyncer\Data\Model\ModelInterface;
 use Pyncer\Database\ConnectionInterface;
 use Pyncer\Database\ConnectionTrait;
 use Pyncer\Database\QueryResultInterface;
-use Pyncer\Database\Query\SelectQueryInterface;
+use Pyncer\Database\Record\SelectQueryInterface;
 use Pyncer\Exception\InvalidArgumentException;
 use Pyncer\Exception\LogicException;
 use Traversable;
@@ -40,6 +40,7 @@ abstract class AbstractMapper implements MapperInterface
     abstract protected function getTable(): string;
     abstract public function forgeModel(iterable $data = []): ModelInterface;
     abstract public function isValidModel(ModelInterface $model): bool;
+
     public function isValidMapperQuery(MapperQueryInterface $mapperQuery): bool
     {
         return ($mapperQuery === null);
