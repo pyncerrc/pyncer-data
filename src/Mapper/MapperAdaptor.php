@@ -2,7 +2,9 @@
 namespace Pyncer\Data\Mapper;
 
 use Pyncer\Data\Formatting\FormatterInterface;
-use Pyncer\Data\Mapper\MapperMapperInterface;
+use Pyncer\Data\Formatting\VoidFormatter;
+use Pyncer\Data\Mapper\MapperInterface;
+use Pyncer\Data\Mapper\Query\MapperQueryInterface;
 use Pyncer\Data\Model\ModelInterface;
 
 use function array_key_exists;
@@ -11,13 +13,24 @@ class MapperAdaptor implements MapperAdaptorInterface
 {
     public function __construct(
         protected MapperInterface $mapper,
-        protected FormatterInterface $formatter,
-    ) {}
+        protected ?MapperQueryInterface $mapperQuery = null,
+        protected ?FormatterInterface $formatter = null,
+    ) {
+        if ($formatter === null) {
+            $this->formatter = new VoidFormatter();
+        }
+    }
 
     public function getMapper(): MapperInterface
     {
         return $this->mapper;
     }
+
+    public function getMapperQuery(): ?MapperQueryInterface
+    {
+        return $this->mapperQueryInterface
+    }
+
     public function getFormatter(): FormatterInterface
     {
         return $this->formatter;
