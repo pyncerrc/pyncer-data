@@ -191,18 +191,18 @@ abstract class AbstractRequestMapperQuery extends AbstractMapperQuery
         foreach ($parts as $part) {
             if ($part[0] === '(') {
                 if ($part[1] === 'OR') {
-                    $where->orBlockOpen();
+                    $where->orOpen();
                 } else {
-                    $where->andBlockOpen();
+                    $where->andOpen();
                 }
                 continue;
             }
 
             if ($part[0] === ')') {
                 if ($part[1] === 'OR') {
-                    $where->orBlockClose();
+                    $where->orClose();
                 } else {
-                    $where->andBlockClose();
+                    $where->andClose();
                 }
                 continue;
             }

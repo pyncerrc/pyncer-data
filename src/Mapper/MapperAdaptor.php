@@ -28,7 +28,7 @@ class MapperAdaptor implements MapperAdaptorInterface
 
     public function getMapperQuery(): ?MapperQueryInterface
     {
-        return $this->mapperQueryInterface
+        return $this->mapperQuery;
     }
 
     public function getFormatter(): FormatterInterface
