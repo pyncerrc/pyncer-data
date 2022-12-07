@@ -1,6 +1,7 @@
 <?php
 namespace Pyncer\Data\Mapper;
 
+use Pyncer\Data\Formatting\FormatterInterface;
 use Pyncer\Data\Mapper\MapperMapperInterface;
 use Pyncer\Data\Model\ModelInterface;
 
@@ -10,37 +11,27 @@ class MapperAdaptor implements MapperAdaptorInterface
 {
     public function __construct(
         protected MapperInterface $mapper,
-        protected array $keys = []
+        protected FormatterInterface $formatter,
     ) {}
 
     public function getMapper(): MapperInterface
     {
         return $this->mapper;
     }
+    public function getFormatter(): FormatterInterface
+    {
+        return $this->formatter;
+    }
 
     public function forgeModel(iterable $data = []): ModelInterface
     {
-        return $this->getMapper()->forgeModel($this->getData($data));
+        return $this->getMapper()->forgeModel(
+            $this->formatter->formatData($data)
+        );
     }
 
-    public function hasKey(string $key): bool
+    public function forgeData(ModelInterface $model): array
     {
-        return array_key_exists($key, $this->keys);
-    }
-
-    public function getKey(string $key): string
-    {
-        return $this->keys[$key] ?? $key;
-    }
-
-    public function getData(iterable $data): array
-    {
-        $newData = [];
-
-        foreach ($data as $key => $value) {
-            $newData[$this->getKey($key)] = $value;
-        }
-
-        return $newData;
+        return $this->formatter->unformatData($model->getData());
     }
 }

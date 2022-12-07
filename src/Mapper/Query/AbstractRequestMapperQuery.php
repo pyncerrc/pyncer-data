@@ -2,12 +2,12 @@
 namespace Pyncer\Data\Mapper\Query;
 
 use Psr\Http\Message\ServerRequestInterface as PsrServerRequestInterface;
-use Pyncer\Data\FiltersQueryParam;
 use Pyncer\Data\Mapper\Query\AbstractMapperQuery;
+use Pyncer\Data\Mapper\Query\FiltersQueryParam;
 use Pyncer\Data\Mapper\Query\MapperQueryInterface;
+use Pyncer\Data\Mapper\Query\OptionsQueryParam;
+use Pyncer\Data\Mapper\Query\OrderByQueryParam;
 use Pyncer\Data\Model\ModelInterface;
-use Pyncer\Data\OptionsQueryParam;
-use Pyncer\Data\OrderByQueryParam;
 use Pyncer\Database\ConnectionInterface;
 use Pyncer\Database\Record\SelectQueryInterface;
 use Pyncer\Exception\InvalidArgumentException;

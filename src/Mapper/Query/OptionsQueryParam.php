@@ -1,7 +1,7 @@
 <?php
-namespace Pyncer\Data;
+namespace Pyncer\Data\Mapper\Query;
 
-use Pyncer\Data\AbstractQueryParam;
+use Pyncer\Data\Mapper\Query\AbstractQueryParam;
 
 use function call_user_func;
 use function in_array;

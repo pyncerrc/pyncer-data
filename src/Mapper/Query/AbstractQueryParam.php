@@ -1,5 +1,5 @@
 <?php
-namespace Pyncer\Data;
+namespace Pyncer\Data\Mapper\Query;
 
 use function trim;
 
