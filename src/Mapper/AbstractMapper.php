@@ -37,7 +37,7 @@ abstract class AbstractMapper implements MapperInterface
         $this->setConnection($connection);
     }
 
-    abstract protected function getTable(): string;
+    abstract public function getTable(): string;
     abstract public function forgeModel(iterable $data = []): ModelInterface;
     abstract public function isValidModel(ModelInterface $model): bool;
 
@@ -313,7 +313,7 @@ abstract class AbstractMapper implements MapperInterface
         return $this->connection->affectedRows();
     }
 
-    protected function forgeSelectQuery(
+    public function forgeSelectQuery(
         ?MapperQueryInterface $mapperQuery = null
     ): SelectQueryInterface
     {
@@ -328,8 +328,6 @@ abstract class AbstractMapper implements MapperInterface
         } else {
             $mapperQuery->overrideQuery($query);
         }
-
-        //echo strval($query)."<br>\n<br>\n";
 
         return $query;
     }

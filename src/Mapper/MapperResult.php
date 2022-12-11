@@ -15,24 +15,24 @@ use function Pyncer\Array\set_recursive as pyncer_array_set_recursive;
 class MapperResult implements MapperResultInterface
 {
     private MapperInterface $mapper;
-    private QueryResultInterface $result;
+    private QueryResultInterface $queryResult;
     private ?MapperQueryInterface $mapperQuery;
     private array $models;
 
     public function __construct(
         MapperInterface $mapper,
-        QueryResultInterface $result,
+        QueryResultInterface $queryResult,
         ?MapperQueryInterface $mapperQuery = null)
     {
         $this->mapper = $mapper;
-        $this->result = $result;
+        $this->queryResult = $queryResult;
         $this->mapperQuery = $mapperQuery;
         $this->models = [];
     }
 
     public function rewind(): void
     {
-        $this->result->rewind();
+        $this->queryResult->rewind();
     }
 
     #[\ReturnTypeWillChange]
@@ -40,7 +40,7 @@ class MapperResult implements MapperResultInterface
     {
         if (!array_key_exists($this->key(), $this->models)) {
             $this->models[$this->key()] = $this->mapper->forgeModelFromResult(
-                $this->result,
+                $this->queryResult,
                 $this->mapperQuery
             );
         }
@@ -51,22 +51,22 @@ class MapperResult implements MapperResultInterface
     #[\ReturnTypeWillChange]
     public function key()
     {
-        return $this->result->key();
+        return $this->queryResult->key();
     }
 
     public function next(): void
     {
-        $this->result->next();
+        $this->queryResult->next();
     }
 
     public function valid(): bool
     {
-        return $this->result->valid();
+        return $this->queryResult->valid();
     }
 
     public function count(): int
     {
-        return $this->result->count();
+        return $this->queryResult->count();
     }
 
     public function getData(): array
@@ -92,7 +92,7 @@ class MapperResult implements MapperResultInterface
 
     public function getRow(): ?ModelInterface
     {
-        $this->result->rewind();
+        $this->queryResult->rewind();
         return $this->current();
     }
     public function getRows(string ...$keys): array

@@ -16,9 +16,9 @@ abstract class AbstractRelationMapper implements RelationMapperInterface
         $this->connection = $connection;
     }
 
-    abstract protected function getTable(): string;
-    abstract protected function getParentIdColumn(): string;
-    abstract protected function getChildIdColumn(): string;
+    abstract public function getTable(): string;
+    abstract public function getParentIdColumn(): string;
+    abstract public function getChildIdColumn(): string;
 
     public function selectById(int $parentId, int $childId): bool
     {
