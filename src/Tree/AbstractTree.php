@@ -1,10 +1,10 @@
 <?php
 namespace Pyncer\Data\Tree;
 
-use Pyncer\Data\Tree\DataTreeInterface;
-use Pyncer\Data\Mapper\Query\MapperQueryInterface;
 use Pyncer\Data\Mapper\MapperInterface;
+use Pyncer\Data\MapperQuery\MapperQueryInterface;
 use Pyncer\Data\Model\ModelInterface;
+use Pyncer\Data\Tree\DataTreeInterface;
 use Pyncer\Data\Tree\TreeInterface;
 use Pyncer\Database\ConnectionInterface;
 use Pyncer\Exception\InvalidArgumentException;

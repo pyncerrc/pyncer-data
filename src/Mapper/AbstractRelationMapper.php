@@ -1,7 +1,7 @@
 <?php
 namespace Pyncer\Data\Mapper;
 
-use Pyncer\Data\RelationMapperInterface;
+use Pyncer\Data\Mapper\RelationMapperInterface;
 use Pyncer\Database\ConnectionInterface;
 use Pyncer\Exception\InvalidArgumentException;
 
@@ -37,8 +37,7 @@ abstract class AbstractRelationMapper implements RelationMapperInterface
                 $this->getChildIdColumn() => $childId
             ])
             ->limit(1)
-            ->execute()
-            ->getRow();
+            ->row();
 
         return boolval($exists);
     }

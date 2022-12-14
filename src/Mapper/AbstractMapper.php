@@ -5,7 +5,7 @@ use DateTime;
 use Pyncer\Data\Mapper\MapperInterface;
 use Pyncer\Data\Mapper\MapperResult;
 use Pyncer\Data\Mapper\MapperResultInterface;
-use Pyncer\Data\Mapper\Query\MapperQueryInterface;
+use Pyncer\Data\MapperQuery\MapperQueryInterface;
 use Pyncer\Data\Model\ModelInterface;
 use Pyncer\Database\ConnectionInterface;
 use Pyncer\Database\ConnectionTrait;
@@ -206,6 +206,25 @@ abstract class AbstractMapper implements MapperInterface
         return $query->numRows();
     }
 
+    public function forgeSelectQuery(
+        ?MapperQueryInterface $mapperQuery = null
+    ): SelectQueryInterface
+    {
+        if ($mapperQuery !== null && !$this->isValidMapperQuery($mapperQuery)) {
+            throw new InvalidArgumentException('Mapper query is invalid.');
+        }
+
+        $query = $this->getConnection()->select($this->getTable());
+
+        if ($mapperQuery === null) {
+            $this->overrideQuery($query);
+        } else {
+            $mapperQuery->overrideQuery($query);
+        }
+
+        return $query;
+    }
+
     public function insert(ModelInterface $model): bool
     {
         if (!$this->isValidModel($model)) {
@@ -311,25 +330,6 @@ abstract class AbstractMapper implements MapperInterface
         $query->execute();
 
         return $this->connection->affectedRows();
-    }
-
-    public function forgeSelectQuery(
-        ?MapperQueryInterface $mapperQuery = null
-    ): SelectQueryInterface
-    {
-        if ($mapperQuery !== null && !$this->isValidMapperQuery($mapperQuery)) {
-            throw new InvalidArgumentException('Mapper query is invalid.');
-        }
-
-        $query = $this->getConnection()->select($this->getTable());
-
-        if ($mapperQuery === null) {
-            $this->overrideQuery($query);
-        } else {
-            $mapperQuery->overrideQuery($query);
-        }
-
-        return $query;
     }
 
     protected function overrideQuery(

@@ -1,9 +1,9 @@
 <?php
 namespace Pyncer\Data\Mapper;
 
-use Pyncer\Data\Model\ModelInterface;
 use Pyncer\Data\Mapper\MapperResultInterface;
-use Pyncer\Data\Mapper\Query\MapperQueryInterface;
+use Pyncer\Data\MapperQuery\MapperQueryInterface;
+use Pyncer\Data\Model\ModelInterface;
 use Pyncer\Database\QueryResultInterface;
 
 interface MapperInterface

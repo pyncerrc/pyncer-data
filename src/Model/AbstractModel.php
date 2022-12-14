@@ -107,6 +107,7 @@ abstract class AbstractModel extends Map implements ModelInterface
         if (!$this->isDefault) {
             $this->values = static::getDefaultData();
         }
+
         $this->addData(...$values);
 
         return $this;

@@ -3,7 +3,7 @@ namespace Pyncer\Data\Mapper;
 
 use Pyncer\Data\Formatting\FormatterInterface;
 use Pyncer\Data\Mapper\MapperInterface;
-use Pyncer\Data\Mapper\Query\MapperQueryInterface;
+use Pyncer\Data\MapperQuery\MapperQueryInterface;
 use Pyncer\Data\Model\ModelInterface;
 
 interface MapperAdaptorInterface

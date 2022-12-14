@@ -1,7 +1,7 @@
 <?php
-namespace Pyncer\Data\Mapper\Query;
+namespace Pyncer\Data\MapperQuery;
 
-use Pyncer\Data\Mapper\Query\AbstractQueryParam;
+use Pyncer\Data\MapperQuery\AbstractQueryParam;
 use Pyncer\Exception\InvalidArgumentException;
 
 use function array_merge;

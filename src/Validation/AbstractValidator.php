@@ -1,18 +1,19 @@
 <?php
 namespace Pyncer\Data\Validation;
 
-use Pyncer\Data\Validation\ValidatorInterface
+use Pyncer\Data\Validation\ValidatorInterface;
 use Pyncer\Database\ConnectionInterface;
-use Pyncer\Validation\DataValidator
+use Pyncer\Database\ConnectionTrait;
+use Pyncer\Validation\DataValidator;
 
 abstract class AbstractValidator extends DataValidator implements
     ValidatorInterface
 {
-    protected ConnectionInterface $connection;
+    use ConnectionTrait;
 
     public function __construct(ConnectionInterface $connection)
     {
-        $this->connection = $connection;
+        $this->setConnection($connection);
 
         parent::__construct();
     }

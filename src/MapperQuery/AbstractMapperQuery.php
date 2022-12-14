@@ -1,7 +1,7 @@
 <?php
-namespace Pyncer\Data\Mapper\Query;
+namespace Pyncer\Data\MapperQuery;
 
-use Pyncer\Data\Mapper\Query\MapperQueryInterface;
+use Pyncer\Data\MapperQuery\MapperQueryInterface;
 use Pyncer\Data\Model\ModelInterface;
 use Pyncer\Database\ConnectionInterface;
 use Pyncer\Database\Record\SelectQueryInterface;
