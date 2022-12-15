@@ -308,7 +308,7 @@ abstract class AbstractMapper implements MapperInterface
         }
 
         return $this->deleteAllByColumns([
-            'id' => [$ids]
+            'id' => $ids
         ]);
     }
 
