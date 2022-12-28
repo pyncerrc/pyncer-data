@@ -7,12 +7,12 @@
     "require": {
         "php": ">=8.1",
         "psr/http-message": "^1.0.1",
-        "pyncer/core": "*",
-        "pyncer/database": "*",
-        "pyncer/exception": "*",
-        "pyncer/iterable": "*",
-        "pyncer/utility": "*",
-        "pyncer/validation": "*"
+        "pyncer/core": "^1.0",
+        "pyncer/database": "^1.0",
+        "pyncer/exception": "^1.0",
+        "pyncer/iterable": "^1.0",
+        "pyncer/utility": "^1.0",
+        "pyncer/validation": "^1.0"
     },
     "autoload": {
         "psr-4": {
