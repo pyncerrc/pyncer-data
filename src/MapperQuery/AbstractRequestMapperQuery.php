@@ -23,7 +23,7 @@ abstract class AbstractRequestMapperQuery extends AbstractMapperQuery
     protected string $prefix;
 
     private ?string $queryMode = null;
-    private bool $resetRequired = false;
+    private bool $resetRequired = true;
 
     private ?FiltersQueryParam $filter = null;
     private ?OptionsQueryParam $options = null;
@@ -158,8 +158,6 @@ abstract class AbstractRequestMapperQuery extends AbstractMapperQuery
         $query->columns('*');
         $query = $this->applyFilters($query);
         $query = $this->applyOptions($query);
-        // TODO: Allow overriding this via function that defaults to none
-        // $query->groupBy('id');
         $query = $this->applyOrderBy($query);
         $this->resetRequired = false;
 
@@ -303,69 +301,3 @@ abstract class AbstractRequestMapperQuery extends AbstractMapperQuery
         return [$query->getTable(), $key, $direction];
     }
 }
-
-/*
-(name eq 'Milk' or name eq 'Eggs') and ((price lt 2.55 and price lt 2.55) or price eq 2)
-
-(name eq 'Milk' or name eq 'Eggs'
-and ((price lt 2.55 and price lt 2.55
-or price eq 2
-
-(name eq 'Milk' or name eq 'Eggs') and ((price lt 2.55 and price lt 2.55) or price eq 2)
-(name eq 'Milk' or name eq 'Eggs') and (price lt 2.55 and (price lt 2.55 or price eq 2))
-
---
-(name eq 'Milk' or name eq 'Eggs') and ((price lt 2.55 and price lt 2.55) or price eq 2)
-
-(name eq 'Milk' or name eq 'Eggs') and ((price lt 2.55 and price lt 2.55) or price eq 2)
-
-((name eq 'Milk') or (name eq 'Eggs') and ((price lt 2.55 and price lt 2.55)) or (price eq 2))
-
----
-
-((name eq 'Milk') or (name eq 'Eggs') and (price lt 2.55 and price lt 2.55) or (price eq 2))
-
---
-name eq 'Milk' or name eq 'Eggs' and price lt 2.55 and price lt 2.55 or price eq 2
-
-name eq 'Milk' or (name eq 'Eggs' and price lt 2.55 and price lt 2.55) or price eq 2
-
-(name eq 'Milk') or (name eq 'Eggs' and price lt 2.55 and price lt 2.55) or (price eq 2)
-
-((name eq 'Milk') or
-(name eq 'Eggs') and (price lt 2.55 and (price lt 2.55) or
-(price eq 2)))
-
-1. Parse out strings, replace with md5
-2. Replace '(' and ')' with ' ( ' and ' ) '
-3. Explode ' or ', implode ' ) or ( ' and surround with '( ' and ' )'
-4. Iterate over each character to group brackets into array ['(...)', 'and', '((...) and (...))', 'or', '(...)']
-5. create bracket group that is compatible with where pdb where conditions
-
-[
-    '(OR',
-        'name = milk',
-        'name = eggs'
-    ')'
-    '(OR',
-        '(AND',
-            price lt 2.55
-            price lt 2.55
-        ')',
-        price eq 2
-    ')'
-]
-
-(name eq 'Milk' or name eq 'Eggs') and price lt 2.55 or price eq 2
-
-'conditions' => [
-    '(',
-    ['not' => false, 'key' => 'name', 'operator' => '=', 'value' 'Milk'],
-    'or',
-    ['not' => false, 'key' => 'name', 'operator' => '=', 'value' 'Eggs'],
-    ')',
-    ['not' => false, 'key' => 'price', 'operator' => '<', 'value' 2.55]
-    'or',
-    ['not' => false, 'key' => 'price', 'operator' => '=', 'value' 2 ]
-]
-*/

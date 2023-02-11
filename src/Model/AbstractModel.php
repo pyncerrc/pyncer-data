@@ -86,7 +86,7 @@ abstract class AbstractModel extends Map implements ModelInterface
 
     public function equals(mixed $other): bool
     {
-        if (!($other instanceof static)) {
+        if (!$other instanceof static) {
             return false;
         }
 
