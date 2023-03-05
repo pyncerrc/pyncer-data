@@ -318,7 +318,7 @@ abstract class AbstractMapper implements MapperInterface
             ->where($columns)
             ->execute();
 
-        return $this->connection->affectedRows();
+        return $this->getConnection()->affectedRows();
     }
 
     public function deleteAllByQuery(callable $overrideQuery): int
@@ -329,7 +329,7 @@ abstract class AbstractMapper implements MapperInterface
 
         $query->execute();
 
-        return $this->connection->affectedRows();
+        return $this->getConnection()->affectedRows();
     }
 
     protected function overrideQuery(

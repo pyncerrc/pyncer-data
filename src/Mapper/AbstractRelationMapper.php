@@ -3,17 +3,18 @@ namespace Pyncer\Data\Mapper;
 
 use Pyncer\Data\Mapper\RelationMapperInterface;
 use Pyncer\Database\ConnectionInterface;
+use Pyncer\Database\ConnectionTrait;
 use Pyncer\Exception\InvalidArgumentException;
 
 use function boolval;
 
 abstract class AbstractRelationMapper implements RelationMapperInterface
 {
-    protected ConnectionInterface $connection;
+    use ConnectionTrait;
 
     public function __construct(ConnectionInterface $connection)
     {
-        $this->connection = $connection;
+        $this->setConnection($connection);
     }
 
     abstract public function getTable(): string;
@@ -30,7 +31,7 @@ abstract class AbstractRelationMapper implements RelationMapperInterface
             throw new InvalidArgumentException('Child id must be greater than zero.');
         }
 
-        $exists = $this->connection
+        $exists = $this->getConnection()
             ->select($this->getTable())
             ->where([
                 $this->getParentIdColumn() => $parentId,
@@ -49,7 +50,7 @@ abstract class AbstractRelationMapper implements RelationMapperInterface
             throw new InvalidArgumentException('Parent id must be greater than zero.');
         }
 
-        $result = $this->connection
+        $result = $this->getConnection()
             ->select($this->getTable())
             ->where([
                 $this->getParentIdColumn() => $parentId
@@ -72,7 +73,7 @@ abstract class AbstractRelationMapper implements RelationMapperInterface
             throw new InvalidArgumentException('Parent id must be greater than zero.');
         }
 
-        return $this->connection
+        return $this->getConnection()
             ->select($this->getTable())
             ->where([
                 $this->getParentIdColumn() => $parentId
@@ -94,7 +95,7 @@ abstract class AbstractRelationMapper implements RelationMapperInterface
             return true;
         }
 
-        $result = $this->connection
+        $result = $this->getConnection()
             ->insert($this->getTable())
             ->values([
                 $this->getParentIdColumn() => $parentId,
@@ -122,16 +123,16 @@ abstract class AbstractRelationMapper implements RelationMapperInterface
             }
         }
 
-        $this->connection->start();
+        $this->getConnection()->start();
 
         foreach ($childIds as $childId) {
             if (!$this->insert($parentId, $childId)) {
-                $this->connection->rollback();
+                $this->getConnection()->rollback();
                 return false;
             }
         }
 
-        $this->connection->commit();
+        $this->getConnection()->commit();
 
         return true;
     }
@@ -148,18 +149,18 @@ abstract class AbstractRelationMapper implements RelationMapperInterface
             }
         }
 
-        $this->connection->start();
+        $this->getConnection()->start();
 
         $this->deleteAll($parentId);
 
         foreach ($childIds as $childId) {
             if (!$this->insert($parentId, $childId)) {
-                $this->connection->rollback();
+                $this->getConnection()->rollback();
                 return false;
             }
         }
 
-        $this->connection->commit();
+        $this->getConnection()->commit();
 
         return true;
     }
@@ -174,7 +175,7 @@ abstract class AbstractRelationMapper implements RelationMapperInterface
             throw new InvalidArgumentException('Child id must be greater than zero.');
         }
 
-        $this->connection
+        $this->getConnection()
             ->delete($this->getTable())
             ->where([
                 $this->getParentIdColumn() => $parentId,
@@ -182,7 +183,7 @@ abstract class AbstractRelationMapper implements RelationMapperInterface
             ])
             ->execute();
 
-        return ($this->connection->affectedRows() ? true : false);
+        return ($this->getConnection()->affectedRows() ? true : false);
     }
 
     public function deleteAll($parentId): int
@@ -192,14 +193,14 @@ abstract class AbstractRelationMapper implements RelationMapperInterface
             throw new InvalidArgumentException('Parent id must be greater than zero.');
         }
 
-        $this->connection
+        $this->getConnection()
             ->delete($this->getTable())
             ->where([
                 $this->getParentIdColumn() => $parentId
             ])
             ->execute();
 
-        return $this->connection->affectedRows();
+        return $this->getConnection()->affectedRows();
     }
 
     public function deleteAllParents(array $parentIds): int
@@ -215,14 +216,14 @@ abstract class AbstractRelationMapper implements RelationMapperInterface
             }
         }
 
-        $this->connection
+        $this->getConnection()
             ->delete($this->getTable())
             ->where([
                 $this->getChildIdColumn() => $parentIds
             ])
             ->execute();
 
-        return $this->connection->affectedRows();
+        return $this->getConnection()->affectedRows();
     }
 
     public function deleteAllChildren(array $childIds): int
@@ -238,13 +239,13 @@ abstract class AbstractRelationMapper implements RelationMapperInterface
             }
         }
 
-        $this->connection
+        $this->getConnection()
             ->delete($this->getTable())
             ->where([
                 $this->getChildIdColumn() => $childIds
             ])
             ->execute();
 
-        return $this->connection->affectedRows();
+        return $this->getConnection()->affectedRows();
     }
 }
