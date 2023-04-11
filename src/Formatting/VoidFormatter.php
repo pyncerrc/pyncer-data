@@ -8,6 +8,9 @@ use function iterator_to_array;
 
 class VoidFormatter implements FormatterInterface
 {
+    /**
+     * @inheritdoc
+     */
     public function formatData(iterable $data): array
     {
         if ($data instanceof Traversable) {
@@ -16,6 +19,10 @@ class VoidFormatter implements FormatterInterface
 
         return $data;
     }
+
+    /**
+     * @inheritdoc
+     */
     public function unformatData(iterable $data): array
     {
         if ($data instanceof Traversable) {

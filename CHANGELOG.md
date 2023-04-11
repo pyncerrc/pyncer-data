@@ -1,5 +1,12 @@
 # Change Log
 
+## 1.1.0 - 2023-04-11
+
+### Changed
+
+- Changed mapperQuery constructor to include ConnectionInterface.
+- Removed ConnectionInterface parameter from overrideModel function in MapperQuery.
+
 ## 1.0.1 - 2023-03-05
 
 ### Changed

@@ -30,10 +30,12 @@ abstract class AbstractRequestMapperQuery extends AbstractMapperQuery
     private ?OrderByQueryParam $orderBy = null;
 
     public function __construct(
+        ConnectionInterface $connection,
         ?PsrServerRequestInterface $request = null,
         string $prefix = ''
-    )
-    {
+    ) {
+        parent::__construct($connection);
+
         $this->request = $request;
         $this->prefix = $prefix;
 

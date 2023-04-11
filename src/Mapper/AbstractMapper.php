@@ -94,7 +94,7 @@ abstract class AbstractMapper implements MapperInterface
         $model = $this->forgeModel($data);
 
         if ($mapperQuery !== null) {
-            $model = $mapperQuery->overrideModel($this->getConnection(), $model, $data);
+            $model = $mapperQuery->overrideModel($model, $data);
         }
 
         return $model;

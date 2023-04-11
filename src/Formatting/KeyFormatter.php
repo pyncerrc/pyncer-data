@@ -9,6 +9,9 @@ class KeyFormatter implements FormatterInterface
         protected array $keys
     ) {}
 
+    /**
+     * @inheritdoc
+     */
     public function formatData(iterable $data): array
     {
         $newData = [];
@@ -21,6 +24,10 @@ class KeyFormatter implements FormatterInterface
 
         return $newData;
     }
+
+    /**
+     * @inheritdoc
+     */
     public function unformatData(iterable $data): array
     {
         $newData = [];

@@ -8,7 +8,6 @@ use Pyncer\Database\Record\SelectQueryInterface;
 interface MapperQueryInterface
 {
     public function overrideModel(
-        ConnectionInterface $connection,
         ModelInterface $model,
         array $data
     ): ModelInterface;
