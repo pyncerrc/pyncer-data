@@ -1,5 +1,11 @@
 # Change Log
 
+## 1.1.1 - 2023-04-19
+
+### Fixed
+
+- Fixed wrong return type in FiltersQueryParam.
+
 ## 1.1.0 - 2023-04-11
 
 ### Changed

@@ -37,7 +37,7 @@ class FiltersQueryParam extends AbstractQueryParam
         $filter = $this->getFilter($name);
         return ($filter !== null);
     }
-    public function getFilter(string $name): ?string
+    public function getFilter(string $name): ?array
     {
         $depth = 0;
 
