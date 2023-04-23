@@ -3,7 +3,6 @@ namespace Pyncer\Data\Model;
 
 use ArgumentCountError;
 use BadMethodCallException;
-use DateTime;
 use Pyncer\Data\Model\ModelInterface;
 use Pyncer\Exception\OutOfBoundsException;
 use Pyncer\Exception\LogicException;
@@ -18,7 +17,6 @@ use function explode;
 use function implode;
 use function is_iterable;
 use function method_exists;
-use function Pyncer\Array\intersect_keys as pyncer_array_intersect_keys;
 use function Pyncer\Utility\to_snake_case as pyncer_to_snake_case;
 
 abstract class AbstractModel extends Map implements ModelInterface

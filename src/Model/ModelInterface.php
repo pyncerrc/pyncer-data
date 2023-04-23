@@ -1,7 +1,6 @@
 <?php
 namespace Pyncer\Data\Model;
 
-use Pyncer\Data\Model\ModelInterface;
 use Pyncer\Iterable\MapInterface;
 use Pyncer\Utility\EqualsInterface;
 
