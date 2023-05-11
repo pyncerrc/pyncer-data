@@ -25,7 +25,7 @@ abstract class AbstractRequestMapperQuery extends AbstractMapperQuery
     private ?string $queryMode = null;
     private bool $resetRequired = true;
 
-    private ?FiltersQueryParam $filter = null;
+    private ?FiltersQueryParam $filters = null;
     private ?OptionsQueryParam $options = null;
     private ?OrderByQueryParam $orderBy = null;
 
@@ -50,8 +50,8 @@ abstract class AbstractRequestMapperQuery extends AbstractMapperQuery
             );
             $filtersQueryParam = $queryParams->getStr($queryParam, null);
             if ($filtersQueryParam !== null) {
-                $filter = new FiltersQueryParam($filtersQueryParam);
-                $this->setFilter($filter);
+                $filters = new FiltersQueryParam($filtersQueryParam);
+                $this->setFilters($filters);
             }
 
             // Options
@@ -98,13 +98,26 @@ abstract class AbstractRequestMapperQuery extends AbstractMapperQuery
         return $this;
     }
 
-    public function getFilter(): ?FiltersQueryParam
+    public function getFilters(): ?FiltersQueryParam
     {
-        return $this->filter;
+        return $this->filters;
     }
-    public function setFilter(?FiltersQueryParam $value): static
+    public function setFilters(?FiltersQueryParam $value): static
     {
-        $this->filter = $value;
+        $this->filters = $value;
+        return $this;
+    }
+    public function addFilters(FiltersQueryParam $value): static
+    {
+        $filters = $this->getFilters();
+
+        if ($filters === null) {
+            $this->setFilters($value);
+            return $this;
+        }
+
+        $filters->addQueryParamString($value->getQueryParamString());
+
         return $this;
     }
 
@@ -117,6 +130,19 @@ abstract class AbstractRequestMapperQuery extends AbstractMapperQuery
         $this->options = $value;
         return $this;
     }
+    public function addOptions(OptionsQueryParam $value): static
+    {
+        $options = $this->getOptions();
+
+        if ($options === null) {
+            $this->setOptions($value);
+            return $this;
+        }
+
+        $options->addQueryParamString($value->getQueryParamString());
+
+        return $this;
+    }
 
     public function getOrderBy(): ?OrderByQueryParam
     {
@@ -125,6 +151,19 @@ abstract class AbstractRequestMapperQuery extends AbstractMapperQuery
     public function setOrderBy(?OrderByQueryParam $value): static
     {
         $this->orderBy = $value;
+        return $this;
+    }
+    public function addOrderBy(OrderByQueryParam $value): static
+    {
+        $orderBy = $this->getOrderBy();
+
+        if ($orderBy === null) {
+            $this->setOrderBy($value);
+            return $this;
+        }
+
+        $orderBy->addQueryParamString($value->getQueryParamString());
+
         return $this;
     }
 
@@ -170,17 +209,17 @@ abstract class AbstractRequestMapperQuery extends AbstractMapperQuery
         SelectQueryInterface $query
     ): SelectQueryInterface
     {
-        if (!$this->getFilter()) {
+        if (!$this->getFilters()) {
             return $query;
         }
 
         if ($this->resetRequired) {
-            $this->getFilter()->clean(function(...$values) {
+            $this->getFilters()->clean(function(...$values) {
                 return $this->isValidFilter(...$values);
             }, true);
         }
 
-        $parts = $this->getFilter()->getParts();
+        $parts = $this->getFilters()->getParts();
 
         if (!$parts) {
             return $query;

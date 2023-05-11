@@ -6,7 +6,7 @@ use function trim;
 abstract class AbstractQueryParam
 {
     protected string $queryParamString;
-    protected array $parts;
+    private ?array $parts = null;
 
     public function __construct(string $queryParamString)
     {
@@ -17,14 +17,24 @@ abstract class AbstractQueryParam
     {
         return $this->queryParamString;
     }
-    protected function setQueryParamString(string $value): void
+    public function setQueryParamString(string $value): static
     {
         $this->queryParamString = trim($value);
-        $this->parts = $this->parseQueryParam($this->queryParamString);
+        $this->parts = null;
+
+        return $this;
     }
+
+    abstract public function addQueryParamString(string $value): static;
 
     public function getParts(): array
     {
+        if ($this->parts === null) {
+            $this->parts = $this->parseQueryParam(
+                $this->getQueryParamString()
+            );
+        }
+
         return $this->parts;
     }
 

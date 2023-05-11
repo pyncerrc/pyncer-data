@@ -1,5 +1,15 @@
 # Change Log
 
+## 1.1.2 - 2023-05-11
+
+### Added
+
+- Added 'Add' functions to query params to append additional values to any existing ones.
+
+### Changed
+
+- Validator now only cleans data without errors.
+
 ## 1.1.1 - 2023-04-19
 
 ### Fixed

@@ -28,6 +28,25 @@ class FiltersQueryParam extends AbstractQueryParam
     private array $bracketMap;
     private ?array $cleanedParts = null;
 
+    public function setQueryParamString(string $value): static
+    {
+        $this->cleanedParts = null;
+        return parent::setQueryParamString($value);
+    }
+
+    public function addQueryParamString(string $value): static
+    {
+        if ($this->queryParamString === '') {
+            $this->setQueryParamString($value);
+        } else {
+            $this->setQueryParamString(
+                '(' . $this->queryParamString . ') and (' . $value . ')'
+            );
+        }
+
+        return $this;
+    }
+
     public function getParts(): array
     {
         return $this->cleanedParts ?? parent::getParts();
