@@ -1,9 +1,10 @@
 # Change Log
 
-## 1.1.2 - 2023-05-11
+## 1.2.0 - 2023-06-01
 
 ### Added
 
+- Added ability to add arbitrary data to models.
 - Added 'Add' functions to query params to append additional values to any existing ones.
 
 ### Changed

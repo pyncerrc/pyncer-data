@@ -23,6 +23,7 @@ abstract class AbstractModel extends Map implements ModelInterface
 {
     protected Map $sideModels;
     protected bool $isDefault;
+    protected array $extraData;
 
     private static $constructIsDefault = false;
 
@@ -30,6 +31,7 @@ abstract class AbstractModel extends Map implements ModelInterface
     {
         $this->isDefault = static::$constructIsDefault;
         $this->sideModels = new Map();
+        $this->extraData = [];
 
         parent::__construct($values);
     }
@@ -100,17 +102,6 @@ abstract class AbstractModel extends Map implements ModelInterface
         return $value;
     }
 
-    public function setData(iterable ...$values): static
-    {
-        if (!$this->isDefault) {
-            $this->values = static::getDefaultData();
-        }
-
-        $this->addData(...$values);
-
-        return $this;
-    }
-
     public function getData(): array
     {
         if ($this->isDefault) {
@@ -130,6 +121,17 @@ abstract class AbstractModel extends Map implements ModelInterface
         }
 
         return $data;
+    }
+
+    public function setData(iterable ...$values): static
+    {
+        if (!$this->isDefault) {
+            $this->values = static::getDefaultData();
+        }
+
+        $this->addData(...$values);
+
+        return $this;
     }
 
     public function addData(iterable ...$values): static
@@ -163,11 +165,23 @@ abstract class AbstractModel extends Map implements ModelInterface
                     $data[$key] = $this->getAllSideModelData($value);
                 }
             }
+
+            foreach ($this->extraData as $key => $value) {
+                if (!$this->has($key)) {
+                    $data[$key] = $value;
+                }
+            }
         } else {
             foreach ($this->getSideModels() as $key => $value) {
                 // Do not allow servants to override default data
                 if (!static::getDefaultModel()->has($key)) {
                     $data[$key] = $this->getAllSideModelData($value);
+                }
+            }
+
+            foreach ($this->extraData as $key => $value) {
+                if (!static::getDefaultModel()->has($key)) {
+                    $data[$key] = $value;
                 }
             }
         }
@@ -236,6 +250,26 @@ abstract class AbstractModel extends Map implements ModelInterface
     public function hasSideModels(string ...$keys): bool
     {
         return $this->getSideModels()->has(...$keys);
+    }
+
+    public function getExtraData(): array
+    {
+        return $this->extraData;
+    }
+    public function setExtraData(iterable ...$values): static
+    {
+        $this->extraData = [];
+        return $this->addExtraData(...$values);
+    }
+    public function addExtraData(iterable ...$values): static
+    {
+        foreach ($values as $iterableValues) {
+            foreach ($iterableValues as $key => $value) {
+                $this->extraData[$key] = $value;
+            }
+        }
+
+        return $this;
     }
 
     public function &offsetGet(mixed $offset): mixed
