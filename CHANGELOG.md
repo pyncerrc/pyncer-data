@@ -1,5 +1,11 @@
 # Change Log
 
+## 1.2.1 - 2023-07-15
+
+### Fixed
+
+- Fixed missing semicolons in KeyFormatter class.
+
 ## 1.2.0 - 2023-06-08
 
 ### Added
