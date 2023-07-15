@@ -9,7 +9,7 @@ use function iterator_to_array;
 class VoidFormatter implements FormatterInterface
 {
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function formatData(iterable $data): array
     {
@@ -21,7 +21,7 @@ class VoidFormatter implements FormatterInterface
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function unformatData(iterable $data): array
     {

@@ -10,14 +10,14 @@ class KeyFormatter implements FormatterInterface
     ) {}
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function formatData(iterable $data): array
     {
         $newData = [];
 
         foreach ($data as $key => $value) {
-            $key = $this->keys[$key] ?? $key
+            $key = $this->keys[$key] ?? $key;
 
             $newData[$key] = $value;
         }
@@ -26,7 +26,7 @@ class KeyFormatter implements FormatterInterface
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function unformatData(iterable $data): array
     {
@@ -35,7 +35,7 @@ class KeyFormatter implements FormatterInterface
         $keys = array_flip($this->keys);
 
         foreach ($data as $key => $value) {
-            $key = $keys[$key] ?? $key
+            $key = $keys[$key] ?? $key;
 
             $newData[$key] = $value;
         }
