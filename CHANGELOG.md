@@ -1,5 +1,11 @@
 # Change Log
 
+## 1.2.2 - 2023-07-29
+
+### Fixed
+
+- Fixed bad class reference in AbstractTree.
+
 ## 1.2.1 - 2023-07-15
 
 ### Fixed
