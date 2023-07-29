@@ -13,7 +13,7 @@ use Pyncer\Iterable\Map;
 use function array_key_exists;
 use function in_array;
 
-abstract class AbstractTree implements Data\Tree\TreeInterface
+abstract class AbstractTree implements TreeInterface
 {
     protected ConnectionInterface $connection;
     protected bool $preload;
