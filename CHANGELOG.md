@@ -1,5 +1,12 @@
 # Change Log
 
+## 1.2.3 - 2023-08-29
+
+### Changed
+
+- Changed it so side models are less strict about their type.
+- Model setSiteModel function now properly supports MapperResult. (getSideModels-\>set() not yet supported.)
+
 ## 1.2.2 - 2023-07-29
 
 ### Fixed

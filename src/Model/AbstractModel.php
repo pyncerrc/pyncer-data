@@ -3,11 +3,13 @@ namespace Pyncer\Data\Model;
 
 use ArgumentCountError;
 use BadMethodCallException;
+use Pyncer\Data\Mapper\MapperResultInterface;
 use Pyncer\Data\Model\ModelInterface;
 use Pyncer\Exception\OutOfBoundsException;
 use Pyncer\Exception\LogicException;
 use Pyncer\Iterable\Map;
 use Pyncer\Iterable\MapInterface;
+use Stringable;
 
 use function array_key_exists;
 use function array_map;
@@ -189,7 +191,9 @@ abstract class AbstractModel extends Map implements ModelInterface
         return $data;
     }
 
-    private function getAllSideModelData(iterable|ModelInterface $sideModelData): array
+    private function getAllSideModelData(
+        iterable|ModelInterface $sideModelData
+    ): array
     {
         if ($sideModelData instanceof ModelInterface) {
             return $sideModelData->getAllData();
@@ -198,10 +202,12 @@ abstract class AbstractModel extends Map implements ModelInterface
         $data = [];
 
         foreach ($sideModelData as $key => $value) {
-            if (is_iterable($value) && !($value instanceof ModelInterface)) {
-                $data[$key] = $this->getAllSideModelData($value);
-            } else {
+            if ($value instanceof ModelInterface) {
                 $data[$key] = $value->getAllData();
+            } elseif (is_iterable($value)) {
+                $data[$key] = $this->getAllSideModelData($value);
+            } elseif ($value instanceof Stringable) {
+                $data[$key] = strval($value);
             }
         }
 
@@ -242,9 +248,17 @@ abstract class AbstractModel extends Map implements ModelInterface
         return $this->sideModels;
     }
 
-    public function getSideModel(string $name): ModelInterface
+    public function getSideModel(string $name): mixed
     {
         return $this->getSideModels()->get($name);
+    }
+    public function setSideModel(string $name, mixed $value): mixed
+    {
+        if ($value instanceof MapperResultInterface) {
+            $value = iterator_to_array($value, false);
+        }
+
+        return $this->getSideModels()->set($name, $value);
     }
 
     public function hasSideModels(string ...$keys): bool

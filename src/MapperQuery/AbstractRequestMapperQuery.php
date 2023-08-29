@@ -254,7 +254,7 @@ abstract class AbstractRequestMapperQuery extends AbstractMapperQuery
 
     protected function applyFilter(
         SelectQueryInterface $query,
-        mixed $left,
+        string $left,
         mixed $right,
         string $operator
     ): SelectQueryInterface

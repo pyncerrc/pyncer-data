@@ -13,7 +13,8 @@ interface ModelInterface extends MapInterface, EqualsInterface
     public static function getDefaultData(): array;
 
     public function getSideModels(): MapInterface;
-    public function getSideModel(string $name): ModelInterface;
+    public function getSideModel(string $name): mixed;
+    public function setSideModel(string $name, mixed $value): mixed;
     public function hasSideModels(string ...$keys): bool;
 
     public function getExtraData(): array;
