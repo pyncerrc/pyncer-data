@@ -410,18 +410,26 @@ class FiltersQueryParam extends AbstractQueryParam
                 // If an array and a space after the comma
                 $right = implode('', $and);
 
-                $condition = [$left, $right, $operator];
-
                 // In theory you could have a field with quotes, but more likely its an error,
                 // so we will treat it as such
-                if ($this->isStringValue($condition[0])) {
+                if ($this->isStringValue($left)) {
                     throw new InvalidArgumentException('Invalid filter value.');
                     //$condition[0] = '\'' . $this->stringMap[substr($condition[0], 1, -1)] . '\'';
                 }
 
-                $condition[1] = $this->convertFilterValue($condition[1]);
+                $right = $this->convertFilterValue($right);
 
-                $conditions[] = $condition;
+                if (is_array($right)) {
+                    $conditions[] = ['(', 'OR'];
+
+                    foreach ($right as $value) {
+                        $conditions[] = [$left, $value, $operator];
+                    }
+
+                    $conditions[] = [')', 'OR'];
+                } else {
+                    $conditions[] = [$left, $right, $operator];
+                }
             }
 
             if (count($ands) > 1) {
