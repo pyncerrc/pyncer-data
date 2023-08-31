@@ -1,5 +1,12 @@
 # Change Log
 
+## 1.3.0 - Unreleased
+
+### Added
+
+- Added support for arrays in filter query params. (ex. state eq 'pending', 'enabled')
+- Added SideModelMap to better support mixed data types.
+
 ## 1.2.3 - 2023-08-29
 
 ### Changed

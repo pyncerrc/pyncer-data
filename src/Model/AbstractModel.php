@@ -3,13 +3,12 @@ namespace Pyncer\Data\Model;
 
 use ArgumentCountError;
 use BadMethodCallException;
-use Pyncer\Data\Mapper\MapperResultInterface;
 use Pyncer\Data\Model\ModelInterface;
+use Pyncer\Data\Model\SideModelMap;
 use Pyncer\Exception\OutOfBoundsException;
 use Pyncer\Exception\LogicException;
 use Pyncer\Iterable\Map;
 use Pyncer\Iterable\MapInterface;
-use Stringable;
 
 use function array_key_exists;
 use function array_map;
@@ -23,7 +22,7 @@ use function Pyncer\Utility\to_snake_case as pyncer_to_snake_case;
 
 abstract class AbstractModel extends Map implements ModelInterface
 {
-    protected Map $sideModels;
+    protected SideModelMap $sideModels;
     protected bool $isDefault;
     protected array $extraData;
 
@@ -32,7 +31,7 @@ abstract class AbstractModel extends Map implements ModelInterface
     public function __construct(iterable $values = [])
     {
         $this->isDefault = static::$constructIsDefault;
-        $this->sideModels = new Map();
+        $this->sideModels = new SideModelMap();
         $this->extraData = [];
 
         parent::__construct($values);
@@ -160,11 +159,13 @@ abstract class AbstractModel extends Map implements ModelInterface
     {
         $data = $this->getData();
 
+        $sideModelData = $this->getSideModels()->getData();
+
         if ($this->isDefault) {
-            foreach ($this->getSideModels() as $key => $value) {
+            foreach ($sideModelData as $key => $value) {
                 // Do not allow servants to override default data
                 if (!$this->has($key)) {
-                    $data[$key] = $this->getAllSideModelData($value);
+                    $data[$key] = $value;
                 }
             }
 
@@ -174,10 +175,10 @@ abstract class AbstractModel extends Map implements ModelInterface
                 }
             }
         } else {
-            foreach ($this->getSideModels() as $key => $value) {
+            foreach ($sideModelData as $key => $value) {
                 // Do not allow servants to override default data
                 if (!static::getDefaultModel()->has($key)) {
-                    $data[$key] = $this->getAllSideModelData($value);
+                    $data[$key] = $value;
                 }
             }
 
@@ -185,29 +186,6 @@ abstract class AbstractModel extends Map implements ModelInterface
                 if (!static::getDefaultModel()->has($key)) {
                     $data[$key] = $value;
                 }
-            }
-        }
-
-        return $data;
-    }
-
-    private function getAllSideModelData(
-        iterable|ModelInterface $sideModelData
-    ): array
-    {
-        if ($sideModelData instanceof ModelInterface) {
-            return $sideModelData->getAllData();
-        }
-
-        $data = [];
-
-        foreach ($sideModelData as $key => $value) {
-            if ($value instanceof ModelInterface) {
-                $data[$key] = $value->getAllData();
-            } elseif (is_iterable($value)) {
-                $data[$key] = $this->getAllSideModelData($value);
-            } elseif ($value instanceof Stringable) {
-                $data[$key] = strval($value);
             }
         }
 
@@ -254,10 +232,6 @@ abstract class AbstractModel extends Map implements ModelInterface
     }
     public function setSideModel(string $name, mixed $value): mixed
     {
-        if ($value instanceof MapperResultInterface) {
-            $value = iterator_to_array($value, false);
-        }
-
         return $this->getSideModels()->set($name, $value);
     }
 
