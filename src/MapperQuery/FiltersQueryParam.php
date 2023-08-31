@@ -16,8 +16,8 @@ use function intval;
 use function is_array;
 use function md5;
 use function Pyncer\Array\unset_empty as pyncer_array_unset_empty;
+use function str_contains;
 use function strlen;
-use function strpos;
 use function strval;
 use function substr;
 use function trim;
@@ -122,11 +122,7 @@ class FiltersQueryParam extends AbstractQueryParam
 
         $queryParamString = $this->parseFilterStrings($queryParamString);
 
-        //print_r($queryParamString); echo "\n";
-
         $parts = $this->parseFilterParts($queryParamString);
-
-        //print_r($parts); echo "\n";
 
         $this->stringMap = [];
         $this->bracketMap = [];
@@ -178,6 +174,11 @@ class FiltersQueryParam extends AbstractQueryParam
 
     /**
     * Parse out strings and replace with hash to make parsing parts easier.
+    *
+    * @param string $queryParamString The query param string to parse.
+    *
+    * @return string A query param string with all single quoted strings
+    *   replaced with a mapped md5 hash.
     */
     private function parseFilterStrings(string $queryParamString): string
     {
@@ -226,7 +227,8 @@ class FiltersQueryParam extends AbstractQueryParam
     }
     private function parseFilterParts(string $queryParamString): array
     {
-        if (strpos($queryParamString, '(') === false) {
+        // If no bracket groups, just parse the single condition string
+        if (!str_contains($queryParamString, '(')) {
             return $this->parseFilterConditionString($queryParamString);
         }
 
@@ -239,6 +241,7 @@ class FiltersQueryParam extends AbstractQueryParam
         $conditions = [];
         $previousConditional = true;
         foreach ($bracketGroups as $key => $value) {
+            // Conditional between two bracket groups
             if ($value === 'and' || $value === 'or') {
                 if ($previousConditional) {
                     throw new InvalidArgumentException('Invalid filter value.');
@@ -249,6 +252,7 @@ class FiltersQueryParam extends AbstractQueryParam
                 continue;
             }
 
+            // Conditional after bracket group
             if (!$previousConditional) {
                 if (substr($value, 0, 3) == 'or ') {
                     $conditions[] = 'or';
@@ -265,7 +269,8 @@ class FiltersQueryParam extends AbstractQueryParam
                 }
             }
 
-            $condition = false;
+            // Conditional before bracket group
+            $condition = null;
             if (substr($value, -3) == ' or') {
                 $condition = 'or';
                 $value = substr($value, 0, -3);
@@ -284,7 +289,7 @@ class FiltersQueryParam extends AbstractQueryParam
 
             $conditions[] = $value;
 
-            if ($condition) {
+            if ($condition !== null) {
                 $conditions[] = $condition;
                 $previousConditional = true;
             } else {
@@ -337,17 +342,14 @@ class FiltersQueryParam extends AbstractQueryParam
             throw new InvalidArgumentException('Invalid filter value.');
         }
 
-        if (count($parts) === 1) {
-            if (strpos($parts[0], '(') === false) {
-                return $parts[0];
-            }
-
+        // If only one group and it has bracket groups, parse again.
+        if (count($parts) === 1 && !str_contains($parts[0], '(')) {
             return $this->parseFilterBracketGroups($parts[0]);
         }
 
         return $parts;
 
-        $newParts = [];
+        /* $newParts = [];
         foreach ($parts as $key => $value) {
             if (substr($value, 0, 4) == 'and ') {
                 $value = explode('or', $value, 2);
@@ -360,13 +362,15 @@ class FiltersQueryParam extends AbstractQueryParam
             }
         }
 
-        return $newParts;
+        return $newParts; */
     }
-    private function parseFilterConditionString(string $queryParamString): array
+    private function parseFilterConditionString(
+        string $conditionString
+    ): array
     {
         $conditions = [];
 
-        $ors = explode(' or ', $queryParamString);
+        $ors = explode(' or ', $conditionString);
 
         if (count($ors) > 1) {
             $conditions[] = ['(', 'OR'];
@@ -385,19 +389,28 @@ class FiltersQueryParam extends AbstractQueryParam
 
                 // Child (bracket) map insert
                 if (count($and) == 1) {
-                    $conditions = array_merge($conditions, $this->bracketMap[$and[0]]);
+                    $conditions = array_merge(
+                        $conditions,
+                        $this->bracketMap[$and[0]]
+                    );
                     continue;
                 }
 
+                $not = false;
                 if ($and[0] === 'not') {
-                    $operator = $this->convertFilterOperator($and[2], true);
-
-                    $condition = [$and[1], $and[3], $operator];
-                } else {
-                    $operator = $this->convertFilterOperator($and[1]);
-
-                    $condition = [$and[0], $and[2], $operator];
+                    $not = true;
+                    unset($and[0]);
+                    $and = array_values($and);
                 }
+
+                $left = $and[0];
+                $operator = $this->convertFilterOperator($and[1], $not);
+                unset($and[0], $and[1]);
+
+                // If an array and a space after the comma
+                $right = implode('', $and);
+
+                $condition = [$left, $right, $operator];
 
                 // In theory you could have a field with quotes, but more likely its an error,
                 // so we will treat it as such
@@ -406,11 +419,7 @@ class FiltersQueryParam extends AbstractQueryParam
                     //$condition[0] = '\'' . $this->stringMap[substr($condition[0], 1, -1)] . '\'';
                 }
 
-                if ($this->isStringValue($condition[1])) {
-                    $condition[1] = $this->stringMap[substr($condition[1], 1, -1)];
-                } else {
-                    $condition[1] = $this->convertFilterValue($condition[1]);
-                }
+                $condition[1] = $this->convertFilterValue($condition[1]);
 
                 $conditions[] = $condition;
             }
@@ -427,7 +436,10 @@ class FiltersQueryParam extends AbstractQueryParam
         return $conditions;
     }
 
-    private function convertFilterOperator(string $operator, bool $not = false): string
+    private function convertFilterOperator(
+        string $operator,
+        bool $not = false
+    ): string
     {
         if ($not) {
             switch ($operator) {
@@ -493,6 +505,17 @@ class FiltersQueryParam extends AbstractQueryParam
             return false;
         }
 
+        if ($this->isArrayValue($value)) {
+            $values = explode(',', $value);
+            $values = array_map(trim(...), $values);
+
+            foreach ($values as $key => $value) {
+                $values[$key] = $this->convertFilterValue($value);
+            }
+
+            return $values;
+        }
+
         if ($this->isIntegerValue($value)) {
             return intval($value);
         }
@@ -502,10 +525,25 @@ class FiltersQueryParam extends AbstractQueryParam
         }
 
         if ($this->isStringValue($value)) {
-            return substr($value, 1, -1);
+            $value = substr($value, 1, -1);
+
+            if (array_key_exists($value, $this->stringMap)) {
+                $value = $this->stringMap[$value];
+            }
+
+            return $value;
         }
 
         return strval($value);
+    }
+
+    private function isArrayValue(string $value): bool
+    {
+        if (str_contains($value, ',')) {
+            return true;
+        }
+
+        return false;
     }
 
     private function isStringValue(string $value): bool
@@ -519,10 +557,12 @@ class FiltersQueryParam extends AbstractQueryParam
 
         return false;
     }
+
     private function isIntegerValue(string $value): bool
     {
         return (filter_var($value, FILTER_VALIDATE_INT) !== false);
     }
+
     private function isFloatValue(string $value): bool
     {
         return (filter_var($value, FILTER_VALIDATE_FLOAT) !== false);
