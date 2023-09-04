@@ -175,18 +175,21 @@ abstract class AbstractRequestMapperQuery extends AbstractMapperQuery
 
         return false;
     }
+
     protected function isValidFilter(
         string $left,
         mixed $right,
         string $operator
     ): bool
     {
-        return false;
+        return ($left === 'id' && is_int($right));
     }
+
     protected function isValidOption(string $option): bool
     {
         return false;
     }
+
     protected function isValidOrderBy(string $key, string $direction): bool
     {
         return ($key === 'id');

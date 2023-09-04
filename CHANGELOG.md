@@ -4,8 +4,13 @@
 
 ### Added
 
-- Added support for arrays in filter query params. (ex. state eq 'pending', 'enabled')
+- Added support for arrays in filter query params. (ex. $filters=state eq 'pending', 'enabled')
 - Added SideModelMap to better support mixed data types.
+- Added default 'id' filter implementationt to RequestMapperQuery.
+
+### Changed
+
+- AbstractRequestMapperQuery::isValidFilter() now handles 'id' by default.
 
 ## 1.2.3 - 2023-08-29
 
