@@ -314,6 +314,7 @@ abstract class AbstractModel extends Map implements ModelInterface
             case 'data':
             case 'defaultdata':
             case 'defaultmodel':
+            case 'extradata':
             case 'sidemodel':
             case 'sidemodels':
                 return true;
