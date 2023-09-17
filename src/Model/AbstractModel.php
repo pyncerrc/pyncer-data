@@ -148,7 +148,7 @@ abstract class AbstractModel extends Map implements ModelInterface
     public function setData(iterable ...$values): static
     {
         if (!$this->isDefault) {
-            $this->values = self::getDefaultData();
+            $this->values = static::getDefaultData();
         }
 
         $this->addData(...$values);
@@ -222,7 +222,7 @@ abstract class AbstractModel extends Map implements ModelInterface
         $class = static::class;
 
         self::$constructIsDefault = true;
-        $model = new $class(self::getDefaultData());
+        $model = new $class(static::getDefaultData());
         self::$constructIsDefault = false;
 
         return $model;

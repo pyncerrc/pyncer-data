@@ -54,22 +54,7 @@ abstract class AbstractQueryParam
      * @param bool $reset When true, any previous modifications as a result of
      *  calling clean will be discarted.
      */
-    public function clean(callable $validate, bool $reset = false): void
-    {
-        if ($reset) {
-            $this->cleanParts = null;
-        }
-
-        $newParts = [];
-
-        foreach ($this->getParts() as $value) {
-            if (call_user_func($validate, $value)) {
-                $newParts[] = $value;
-            }
-        }
-
-        $this->cleanParts = $newParts;
-    }
+    abstract public function clean(callable $validate, bool $reset = false): void;
 
     public function __toString(): string
     {

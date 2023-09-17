@@ -24,7 +24,7 @@ class OptionsQueryParam extends AbstractQueryParam
 
     public function getCleanQueryParamString(): string
     {
-        return implode(',', $this->getParts());
+        return implode(', ', $this->getParts());
     }
 
     public function hasOption(string $option): bool
@@ -40,10 +40,18 @@ class OptionsQueryParam extends AbstractQueryParam
 
     public function clean(callable $validate, bool $reset = false): void
     {
-        parent::clean($validate, $reset);
-
-        if ($this->cleanParts !== null) {
-            $this->cleanParts = array_unique($this->cleanParts);
+        if ($reset) {
+            $this->cleanParts = null;
         }
+
+        $newParts = [];
+
+        foreach ($this->getParts() as $value) {
+            if (call_user_func($validate, $value)) {
+                $newParts[] = $value;
+            }
+        }
+
+        $this->cleanParts = array_unique($newParts);
     }
 }

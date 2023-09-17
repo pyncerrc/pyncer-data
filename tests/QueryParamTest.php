@@ -69,4 +69,88 @@ class QueryParamTest extends TestCase
             "( a eq 'b' and c eq 'd' )"
         );
     }
+
+    public function testOptionsQueryParam(): void
+    {
+        $options = 'include-test';
+        $options = new \Pyncer\Data\MapperQuery\OptionsQueryParam($options);
+
+        $this->assertEquals(
+            $options->getParts(),
+            [
+                'include-test',
+            ]
+        );
+
+        $this->assertEquals(
+            $options->getCleanQueryParamString(),
+            'include-test'
+        );
+
+        $options = 'include-test,include-foo,include-bar';
+        $options = new \Pyncer\Data\MapperQuery\OptionsQueryParam($options);
+
+        $options->clean(function($value) {
+            if ($value === 'include-foo') {
+                return false;
+            }
+
+            return true;
+        });
+
+        $this->assertEquals(
+            $options->getParts(),
+            [
+                'include-test',
+                'include-bar',
+            ]
+        );
+
+        $this->assertEquals(
+            $options->getCleanQueryParamString(),
+            'include-test, include-bar',
+        );
+    }
+
+    public function testOrderByQueryParam(): void
+    {
+        $orderBy = 'a desc';
+        $orderBy = new \Pyncer\Data\MapperQuery\OrderByQueryParam($orderBy);
+
+        $this->assertEquals(
+            $orderBy->getParts(),
+            [
+                ['a', '<'],
+            ]
+        );
+
+        $this->assertEquals(
+            $orderBy->getCleanQueryParamString(),
+            "a desc"
+        );
+
+        $orderBy = 'a desc, b asc, c desc';
+        $orderBy = new \Pyncer\Data\MapperQuery\OrderByQueryParam($orderBy);
+
+        $orderBy->clean(function($value) {
+            if ($value[0] === 'b') {
+                return false;
+            }
+
+            return true;
+        });
+
+        $this->assertEquals(
+            $orderBy->getParts(),
+            [
+                ['a', '<'],
+                ['c', '<'],
+            ]
+        );
+
+        $this->assertEquals(
+            $orderBy->getCleanQueryParamString(),
+            "a desc, c desc"
+        );
+    }
 }

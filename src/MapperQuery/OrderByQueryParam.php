@@ -26,7 +26,13 @@ class OrderByQueryParam extends AbstractQueryParam
 
     public function getCleanQueryParamString(): string
     {
-        return implode(',', $this->getParts());
+        $parts = [];
+
+        foreach ($this->getParts() as $part) {
+            $parts[] = $part[0] . ($part[0] === '>' ? ' asc' : ' desc');
+        }
+
+        return implode(', ', $parts);
     }
 
     public function hasOrderBy(string $name): bool
@@ -82,5 +88,22 @@ class OrderByQueryParam extends AbstractQueryParam
         }
 
         return $orderByParts;
+    }
+
+    public function clean(callable $validate, bool $reset = false): void
+    {
+        if ($reset) {
+            $this->cleanParts = null;
+        }
+
+        $newParts = [];
+
+        foreach ($this->getParts() as $value) {
+            if (call_user_func_array($validate, $value)) {
+                $newParts[] = $value;
+            }
+        }
+
+        $this->cleanParts = $newParts;
     }
 }
