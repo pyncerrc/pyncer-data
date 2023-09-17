@@ -55,15 +55,15 @@ class SideModelMap extends Map
         }
 
         if ($data instanceof Stringable) {
-            return strval($value);
+            return strval($data);
         }
 
-        if (is_iterable($value)) {
-            $value = iterator_to_array($value, true);
+        if (is_iterable($data)) {
+            $data = [...$data];
         }
 
-        if (is_array($value)) {
-            return array_map($this->getDataInternal(...), $value);
+        if (is_array($data)) {
+            return array_map($this->getDataInternal(...), $data);
         }
 
         return null;

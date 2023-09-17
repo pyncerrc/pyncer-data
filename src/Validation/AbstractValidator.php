@@ -21,7 +21,7 @@ abstract class AbstractValidator extends DataValidator implements
     public function validateData(array $data): array
     {
         $errors = $this->getErrors($data);
-        $errors = iterator_to_array($errors, true);
+        $errors = [...$errors];
 
         // Only clean data that doesn't have errors.
         $diff = array_diff_key($data, $errors);

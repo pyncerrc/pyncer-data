@@ -43,13 +43,13 @@ abstract class AbstractRelationMapper implements RelationMapperInterface
         return boolval($exists);
     }
 
-    public function selectAll($parentId): array
+    public function selectAll(int $parentId): array
     {
-        $parentId = intval($parentId);
         if ($parentId <= 0) {
             throw new InvalidArgumentException('Parent id must be greater than zero.');
         }
 
+        /** @var object **/
         $result = $this->getConnection()
             ->select($this->getTable())
             ->where([
@@ -60,7 +60,7 @@ abstract class AbstractRelationMapper implements RelationMapperInterface
 
         $ids = [];
 
-        foreach ($result as $row) {
+        while ($row = $this->getConnection()->fetch($result)) {
             $ids[] = intval($row[$this->getChildIdColumn()]);
         }
 
@@ -186,9 +186,8 @@ abstract class AbstractRelationMapper implements RelationMapperInterface
         return ($this->getConnection()->affectedRows() ? true : false);
     }
 
-    public function deleteAll($parentId): int
+    public function deleteAll(int $parentId): int
     {
-        $parentId = intval($parentId);
         if ($parentId <= 0) {
             throw new InvalidArgumentException('Parent id must be greater than zero.');
         }

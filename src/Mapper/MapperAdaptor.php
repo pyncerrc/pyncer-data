@@ -14,12 +14,8 @@ class MapperAdaptor implements MapperAdaptorInterface
     public function __construct(
         protected MapperInterface $mapper,
         protected ?MapperQueryInterface $mapperQuery = null,
-        protected ?FormatterInterface $formatter = null,
-    ) {
-        if ($formatter === null) {
-            $this->formatter = new VoidFormatter();
-        }
-    }
+        protected FormatterInterface $formatter = new VoidFormatter(),
+    ) { }
 
     public function getMapper(): MapperInterface
     {

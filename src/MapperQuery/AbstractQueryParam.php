@@ -7,6 +7,7 @@ abstract class AbstractQueryParam
 {
     protected string $queryParamString;
     private ?array $parts = null;
+    protected ?array $cleanParts = null;
 
     public function __construct(string $queryParamString)
     {
@@ -21,14 +22,20 @@ abstract class AbstractQueryParam
     {
         $this->queryParamString = trim($value);
         $this->parts = null;
+        $this->cleanParts = null;
 
         return $this;
     }
 
     abstract public function addQueryParamString(string $value): static;
+    abstract public function getCleanQueryParamString(): string;
 
     public function getParts(): array
     {
+        if ($this->cleanParts !== null) {
+            return $this->cleanParts;
+        }
+
         if ($this->parts === null) {
             $this->parts = $this->parseQueryParam(
                 $this->getQueryParamString()
@@ -39,7 +46,30 @@ abstract class AbstractQueryParam
     }
 
     abstract protected function parseQueryParam(string $queryParamString): array;
-    abstract public function clean(callable $validate, bool $reset = false): void;
+
+    /**
+     * Cleans each value in the query param string.
+     *
+     * @param callable $validate A validate function to perform the cleaning.
+     * @param bool $reset When true, any previous modifications as a result of
+     *  calling clean will be discarted.
+     */
+    public function clean(callable $validate, bool $reset = false): void
+    {
+        if ($reset) {
+            $this->cleanParts = null;
+        }
+
+        $newParts = [];
+
+        foreach ($this->getParts() as $value) {
+            if (call_user_func($validate, $value)) {
+                $newParts[] = $value;
+            }
+        }
+
+        $this->cleanParts = $newParts;
+    }
 
     public function __toString(): string
     {

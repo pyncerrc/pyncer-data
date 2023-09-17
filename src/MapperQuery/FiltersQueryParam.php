@@ -26,13 +26,6 @@ class FiltersQueryParam extends AbstractQueryParam
 {
     private array $stringMap;
     private array $bracketMap;
-    private ?array $cleanedParts = null;
-
-    public function setQueryParamString(string $value): static
-    {
-        $this->cleanedParts = null;
-        return parent::setQueryParamString($value);
-    }
 
     public function addQueryParamString(string $value): static
     {
@@ -47,10 +40,50 @@ class FiltersQueryParam extends AbstractQueryParam
         return $this;
     }
 
-    public function getParts(): array
+    public function getCleanQueryParamString(): string
     {
-        return $this->cleanedParts ?? parent::getParts();
+        $queryParam = [];
+        $depths = ['and'];
+
+        foreach ($this->getParts() as $part) {
+            if ($part[0] === '(') {
+                if (!$queryParam) {
+                    $queryParam[] = '(';
+                } elseif ($depths[count($depths) - 1] === 'and') {
+                    $queryParam[] = 'and (';
+                } else {
+                    $queryParam[] = 'or (';
+                }
+
+                if ($part[1] === 'OR') {
+                    $depths[] = 'or';
+                } else {
+                    $depths[] = 'and';
+                }
+
+                continue;
+            }
+
+            if ($part[0] === ')') {
+                $queryParam[] = ')';
+
+                array_pop($depths);
+
+                continue;
+            }
+
+            if ($queryParam && substr($queryParam[count($queryParam) - 1], -1) !== '(') {
+                $queryParam[] = $depths[count($depths) - 1];
+            }
+
+            $queryParam[] = $part[0] . ' ' .
+                $this->convertQueryOperator($part[2]) . ' ' .
+                $this->convertQueryValue($part[1]);
+        }
+
+        return implode(' ', $queryParam);
     }
+
     public function hasFilter(string $name): bool
     {
         $filter = $this->getFilter($name);
@@ -133,7 +166,7 @@ class FiltersQueryParam extends AbstractQueryParam
     public function clean(callable $validate, bool $reset = false): void
     {
         if ($reset) {
-            $this->cleanedParts = null;
+            $this->cleanParts = null;
         }
 
         $newParts = [];
@@ -151,23 +184,30 @@ class FiltersQueryParam extends AbstractQueryParam
             $newParts[] = $value;
         }
 
-        // Remove instances of brackets with no children
-        $this->cleanedParts = [];
+        // Remove instances of brackets with one or no children
+        $this->cleanParts = [];
 
         $lastKey = -1;
         foreach ($newParts as $key => $value) {
             if ($value[0] === ')') {
-                if ($this->cleanedParts[$lastKey][0] === '(') {
-                    array_pop($this->cleanedParts);
+                if ($this->cleanParts[$lastKey][0] === '(') {
+                    array_pop($this->cleanParts);
+                    --$lastKey;
+                } elseif ($lastKey > 1 &&
+                    $this->cleanParts[$lastKey - 1][0] === '('
+                ) {
+                    unset($this->cleanParts[$lastKey - 1]);
+                    $this->cleanParts = array_values($this->cleanParts);
+
                     --$lastKey;
                 } else {
-                    $this->cleanedParts[] = $value;
+                    $this->cleanParts[] = $value;
                 }
 
                 continue;
             }
 
-            $this->cleanedParts[] = $value;
+            $this->cleanParts[] = $value;
             ++$lastKey;
         }
     }
@@ -348,21 +388,6 @@ class FiltersQueryParam extends AbstractQueryParam
         }
 
         return $parts;
-
-        /* $newParts = [];
-        foreach ($parts as $key => $value) {
-            if (substr($value, 0, 4) == 'and ') {
-                $value = explode('or', $value, 2);
-                $newParts[] = trim($value[0]);
-                if (isset($value[1])) {
-                    $newParts[] = 'or ' . trim($value[1]);
-                }
-            } else {
-                $newParts[] = $value;
-            }
-        }
-
-        return $newParts; */
     }
     private function parseFilterConditionString(
         string $conditionString
@@ -407,15 +432,15 @@ class FiltersQueryParam extends AbstractQueryParam
                 $operator = $this->convertFilterOperator($and[1], $not);
                 unset($and[0], $and[1]);
 
-                // If an array and a space after the comma
-                $right = implode('', $and);
-
                 // In theory you could have a field with quotes, but more likely its an error,
                 // so we will treat it as such
                 if ($this->isStringValue($left)) {
                     throw new InvalidArgumentException('Invalid filter value.');
                     //$condition[0] = '\'' . $this->stringMap[substr($condition[0], 1, -1)] . '\'';
                 }
+
+                // Join back remaining values.
+                $right = implode(' ', $and);
 
                 $right = $this->convertFilterValue($right);
 
@@ -470,7 +495,7 @@ class FiltersQueryParam extends AbstractQueryParam
                     $operator = '=';
                     break;
                 default:
-                    throw new InvalidArgumentException('Invalid filter value.');
+                    throw new InvalidArgumentException('Invalid filter operator value.');
             }
         } else {
             switch ($operator) {
@@ -493,13 +518,44 @@ class FiltersQueryParam extends AbstractQueryParam
                     $operator = '!=';
                     break;
                 default:
-                    throw new InvalidArgumentException('Invalid filter value.');
+                    throw new InvalidArgumentException('Invalid filter operator value.');
             }
         }
 
         return $operator;
     }
-    private function convertFilterValue(string $value): mixed
+    private function convertQueryOperator(
+        string $operator,
+        bool $not = false
+    ): string
+    {
+        switch ($operator) {
+            case '>':
+                $operator = 'gt';
+                break;
+            case '>=':
+                $operator = 'ge';
+                break;
+            case '<':
+                $operator = 'lt';
+                break;
+            case '<=':
+                $operator = 'le';
+                break;
+            case '=':
+                $operator = 'eq';
+                break;
+            case '!=':
+                $operator = 'ne';
+                break;
+            default:
+                throw new InvalidArgumentException('Invalid query operator value.');
+        }
+
+        return $operator;
+    }
+
+    private function convertFilterValue(string $value): null|bool|int|float|string|array
     {
         if ($value === 'null') {
             return null;
@@ -516,10 +572,7 @@ class FiltersQueryParam extends AbstractQueryParam
         if ($this->isArrayValue($value)) {
             $values = explode(',', $value);
             $values = array_map(trim(...), $values);
-
-            foreach ($values as $key => $value) {
-                $values[$key] = $this->convertFilterValue($value);
-            }
+            $values = array_map($this->convertFilterValue(...), $values);
 
             return $values;
         }
@@ -542,7 +595,35 @@ class FiltersQueryParam extends AbstractQueryParam
             return $value;
         }
 
-        return strval($value);
+        return $value;
+    }
+    private function convertQueryValue(null|bool|int|float|string|array $value): string
+    {
+        if ($value === null) {
+            return 'null';
+        }
+
+        if ($value === true) {
+            return 'true';
+        }
+
+        if ($value === false) {
+            return 'false';
+        }
+
+        if (is_int($value) || is_float($value)) {
+            return strval($value);
+        }
+
+        if (is_array($value)) {
+            $values = [];
+
+            $values = array_map($this->convertQueryValue(...), $value);
+
+            return implode(', ', $values);
+        }
+
+        return '\'' . $value . '\'';
     }
 
     private function isArrayValue(string $value): bool

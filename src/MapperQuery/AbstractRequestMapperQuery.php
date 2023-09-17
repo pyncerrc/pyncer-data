@@ -48,7 +48,7 @@ abstract class AbstractRequestMapperQuery extends AbstractMapperQuery
                 '$filters' :
                 '$' . $prefix . 'Filters'
             );
-            $filtersQueryParam = $queryParams->getStr($queryParam, null);
+            $filtersQueryParam = $queryParams->getString($queryParam, null);
             if ($filtersQueryParam !== null) {
                 $filters = new FiltersQueryParam($filtersQueryParam);
                 $this->setFilters($filters);
@@ -60,7 +60,7 @@ abstract class AbstractRequestMapperQuery extends AbstractMapperQuery
                 '$options' :
                 '$' . $prefix . 'Options'
             );
-            $optionsQueryParam = $queryParams->getStr($queryParam, null);
+            $optionsQueryParam = $queryParams->getString($queryParam, null);
             if ($optionsQueryParam !== null) {
                 $options = new OptionsQueryParam($optionsQueryParam);
                 $this->setOptions($options);
@@ -72,7 +72,7 @@ abstract class AbstractRequestMapperQuery extends AbstractMapperQuery
                 '$orderBy' :
                 '$' . $prefix . 'OrderBy'
             );
-            $orderByQueryParam = $queryParams->getStr($queryParam, null);
+            $orderByQueryParam = $queryParams->getString($queryParam, null);
             if ($orderByQueryParam !== null) {
                 $orderBy = new OrderByQueryParam($orderByQueryParam);
                 $this->setOrderBy($orderBy);
@@ -338,8 +338,8 @@ abstract class AbstractRequestMapperQuery extends AbstractMapperQuery
 
     protected function getOrderByColumn(
         SelectQueryInterface $query,
-        $key,
-        $direction
+        string $key,
+        string $direction
     ): array
     {
         return [$query->getTable(), $key, $direction];

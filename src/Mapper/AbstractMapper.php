@@ -19,7 +19,6 @@ use function array_map;
 use function call_user_func;
 use function intval;
 use function is_int;
-use function iterator_to_array;
 use function preg_replace;
 use function Pyncer\date_time as pyncer_date_time;
 use function substr;
@@ -43,7 +42,7 @@ abstract class AbstractMapper implements MapperInterface
 
     public function isValidMapperQuery(MapperQueryInterface $mapperQuery): bool
     {
-        return ($mapperQuery === null);
+        return false;
     }
 
     public function forgeResult(
@@ -238,6 +237,7 @@ abstract class AbstractMapper implements MapperInterface
             unset($data['id']);
         }
 
+        /** @var bool **/
         $result = $this->getConnection()
             ->insert($this->getTable())
             ->values($data)
@@ -263,6 +263,7 @@ abstract class AbstractMapper implements MapperInterface
         $data = $model->getData();
         $data = $this->formatData($data);
 
+        /** @var bool **/
         return $this->getConnection()
             ->update($this->getTable())
             ->values($data)
@@ -296,11 +297,9 @@ abstract class AbstractMapper implements MapperInterface
 
     public function deleteAllByIds(iterable $ids): int
     {
-        if ($ids instanceof Traversable) {
-            $ids = iterator_to_array($ids, false);
-        }
-
+        $ids = [...$ids];
         $ids = array_map('intval', $ids);
+
         foreach ($ids as $id) {
             if ($id <= 0) {
                 throw new InvalidArgumentException('Ids must be greater than zero.');
@@ -376,22 +375,22 @@ abstract class AbstractMapper implements MapperInterface
 
             if (substr($key, -10) === '_date_time') {
                 $value = pyncer_date_time($value);
-                $data[$key] = $value->format(PYNCER_DATE_TIME_FORMAT);
+                $data[$key] = $value?->format(PYNCER_DATE_TIME_FORMAT);
             } elseif (substr($key, -5) === '_date') {
                 $value = pyncer_date_time($value);
-                $data[$key] = $value->format(PYNCER_DATE_FORMAT);
+                $data[$key] = $value?->format(PYNCER_DATE_FORMAT);
             } elseif (substr($key, -5) === '_time') {
                 $value = pyncer_date_time($value);
-                $data[$key] = $value->format(PYNCER_TIME_FORMAT);
+                $data[$key] = $value?->format(PYNCER_TIME_FORMAT);
             } elseif (substr($key, -16) === '_date_time_local') {
                 $value = pyncer_date_time($value, true);
-                $data[$key] = $value->format(PYNCER_DATE_TIME_FORMAT);
+                $data[$key] = $value?->format(PYNCER_DATE_TIME_FORMAT);
             } elseif (substr($key, -11) === '_date_local') {
                 $value = pyncer_date_time($value, true);
-                $data[$key] = $value->format(PYNCER_DATE_FORMAT);
+                $data[$key] = $value?->format(PYNCER_DATE_FORMAT);
             } elseif (substr($key, -11) === '_time_local') {
                 $value = pyncer_date_time($value, true);
-                $data[$key] = $value->format(PYNCER_TIME_FORMAT);
+                $data[$key] = $value?->format(PYNCER_TIME_FORMAT);
             }
         }
 

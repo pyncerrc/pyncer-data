@@ -11,6 +11,7 @@ use function array_key_exists;
 use function array_map;
 use function Pyncer\Array\intersect_keys as pyncer_array_intersect_keys;
 use function Pyncer\Array\set_recursive as pyncer_array_set_recursive;
+use function Pyncer\stringify as pyncer_stringify;
 
 class MapperResult implements MapperResultInterface
 {
@@ -36,7 +37,7 @@ class MapperResult implements MapperResultInterface
     }
 
     #[\ReturnTypeWillChange]
-    public function current()
+    public function current(): ?ModelInterface
     {
         if (!array_key_exists($this->key(), $this->models)) {
             $this->models[$this->key()] = $this->mapper->forgeModelFromResult(
@@ -49,7 +50,7 @@ class MapperResult implements MapperResultInterface
     }
 
     #[\ReturnTypeWillChange]
-    public function key()
+    public function key(): int
     {
         return $this->queryResult->key();
     }
@@ -102,10 +103,9 @@ class MapperResult implements MapperResultInterface
         if ($keys) {
             foreach ($this as $value) {
                 $actualKeys = array_map(function($key) use($value) {
-                    return $value->get($key) ?? '@';
+                    return $this->getKeyFromValue($value->get($key));
                 }, $keys);
                 $data = pyncer_array_set_recursive($data, $actualKeys, $value);
-                //$data[$value->get($key)] = $value;
             }
         } else {
             foreach ($this as $value) {
@@ -122,10 +122,9 @@ class MapperResult implements MapperResultInterface
         if ($keys) {
             foreach ($this as $value) {
                 $actualKeys = array_map(function($key) use($value) {
-                    return $value->get($key) ?? '@';
+                    return $this->getKeyFromValue($value->get($key));
                 }, $keys);
                 $data = pyncer_array_set_recursive($data, $actualKeys, $value->get($column));
-                //$data[$value->get($keys)] = $value->get($column);
             }
         } else {
             foreach ($this as $value) {
@@ -142,14 +141,13 @@ class MapperResult implements MapperResultInterface
         if ($keys) {
             foreach ($this as $value) {
                 $actualKeys = array_map(function($key) use($value) {
-                    return $value->get($key) ?? '@';
+                    return $this->getKeyFromValue($value->get($key));
                 }, $keys);
                 $data = pyncer_array_set_recursive(
                     $data,
                     $actualKeys,
                     pyncer_array_intersect_keys($value->getData(), $columns)
                 );
-                //$data[$value->get($keys)] = $value->get($column);
             }
         } else {
             foreach ($this as $value) {
@@ -158,5 +156,14 @@ class MapperResult implements MapperResultInterface
         }
 
         return $data;
+    }
+
+    private function getKeyFromValue(mixed $value): int|string
+    {
+        if (!is_int($value)) {
+            $value = pyncer_stringify($value);
+        }
+
+        return $value ?? '@';
     }
 }

@@ -5,6 +5,7 @@ use ArgumentCountError;
 use BadMethodCallException;
 use Pyncer\Data\Model\ModelInterface;
 use Pyncer\Data\Model\SideModelMap;
+use Pyncer\Exception\InvalidArgumentException;
 use Pyncer\Exception\OutOfBoundsException;
 use Pyncer\Exception\LogicException;
 use Pyncer\Iterable\Map;
@@ -26,11 +27,11 @@ abstract class AbstractModel extends Map implements ModelInterface
     protected bool $isDefault;
     protected array $extraData;
 
-    private static $constructIsDefault = false;
+    private static bool $constructIsDefault = false;
 
     public function __construct(iterable $values = [])
     {
-        $this->isDefault = static::$constructIsDefault;
+        $this->isDefault = self::$constructIsDefault;
         $this->sideModels = new SideModelMap();
         $this->extraData = [];
 
@@ -39,18 +40,18 @@ abstract class AbstractModel extends Map implements ModelInterface
 
     public function get(string $key): mixed
     {
-        if ($this->has($key)) {
+        if (array_key_exists($key, $this->values)) {
             return $this->values[$key];
         }
 
         if (!$this->isDefault) {
-            return static::getDefaultModel()->get($key);
+            return self::getDefaultModel()->get($key);
         }
 
         throw new OutOfBoundsException('Invalid key specified. (' . $key . ')');
     }
 
-    public function set(string $key, $value): static
+    public function set(string $key, mixed $value): static
     {
         if (!is_null($value) && !is_scalar($value)) {
             throw new LogicException(
@@ -62,11 +63,30 @@ abstract class AbstractModel extends Map implements ModelInterface
         return $this;
     }
 
+    public function has(string ...$keys): bool
+    {
+        foreach ($keys as $key) {
+            if (!array_key_exists($key, $this->values)) {
+                if ($this->isDefault) {
+                    return false;
+                }
+
+                if (!self::getDefaultModel()->has($key)) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
     public function delete(string ...$keys): static
     {
         foreach ($keys as $key) {
-            if (!$this->isDefault && static::getDefaultModel()->has($key)) {
-                $this->values[$key] = static::getDefaultModel()->get($key);
+            if (self::getDefaultModel()->has($key)) {
+                if (!$this->isDefault) {
+                    $this->values[$key] = self::getDefaultModel()->get($key);
+                }
             } else {
                 unset($this->values[$key]);
             }
@@ -77,6 +97,7 @@ abstract class AbstractModel extends Map implements ModelInterface
 
     public function getId(): int
     {
+        /** @var int **/
         return $this->get('id');
     }
     public function setId(int $value): static
@@ -111,7 +132,7 @@ abstract class AbstractModel extends Map implements ModelInterface
 
         $data = [];
 
-        foreach (static::getDefaultModel()->getKeys() as $key) {
+        foreach (self::getDefaultModel()->getKeys() as $key) {
             $value = $this->callGet($key);
 
             if (is_null($value) || is_scalar($value) || is_array($value)) {
@@ -127,7 +148,7 @@ abstract class AbstractModel extends Map implements ModelInterface
     public function setData(iterable ...$values): static
     {
         if (!$this->isDefault) {
-            $this->values = static::getDefaultData();
+            $this->values = self::getDefaultData();
         }
 
         $this->addData(...$values);
@@ -142,7 +163,7 @@ abstract class AbstractModel extends Map implements ModelInterface
             return $this;
         }
 
-        $defaultModel = static::getDefaultModel();
+        $defaultModel = self::getDefaultModel();
 
         foreach ($values as $iterableValues) {
             foreach ($iterableValues as $key => $value) {
@@ -161,31 +182,17 @@ abstract class AbstractModel extends Map implements ModelInterface
 
         $sideModelData = $this->getSideModels()->getData();
 
-        if ($this->isDefault) {
-            foreach ($sideModelData as $key => $value) {
-                // Do not allow servants to override default data
-                if (!$this->has($key)) {
-                    $data[$key] = $value;
-                }
+        // Do not allow side models to override default data
+        foreach ($sideModelData as $key => $value) {
+            if (!$this->has($key)) {
+                $data[$key] = $value;
             }
+        }
 
-            foreach ($this->extraData as $key => $value) {
-                if (!$this->has($key)) {
-                    $data[$key] = $value;
-                }
-            }
-        } else {
-            foreach ($sideModelData as $key => $value) {
-                // Do not allow servants to override default data
-                if (!static::getDefaultModel()->has($key)) {
-                    $data[$key] = $value;
-                }
-            }
-
-            foreach ($this->extraData as $key => $value) {
-                if (!static::getDefaultModel()->has($key)) {
-                    $data[$key] = $value;
-                }
+        // Do not allow extra data to override default data
+        foreach ($this->extraData as $key => $value) {
+            if (!$this->has($key)) {
+                $data[$key] = $value;
             }
         }
 
@@ -214,9 +221,9 @@ abstract class AbstractModel extends Map implements ModelInterface
     {
         $class = static::class;
 
-        static::$constructIsDefault = true;
-        $model = new $class(static::getDefaultData());
-        static::$constructIsDefault = false;
+        self::$constructIsDefault = true;
+        $model = new $class(self::getDefaultData());
+        self::$constructIsDefault = false;
 
         return $model;
     }
@@ -262,10 +269,18 @@ abstract class AbstractModel extends Map implements ModelInterface
 
     public function &offsetGet(mixed $offset): mixed
     {
+        if (!is_string($offset)) {
+            throw new InvalidArgumentException('Offset value must be a string.');
+        }
+
         return $this->callGet($offset);
     }
     public function offsetSet(mixed $offset, mixed $value): void
     {
+        if (!is_string($offset)) {
+            throw new InvalidArgumentException('Offset value must be a string.');
+        }
+
         $this->callSet($offset, $value);
     }
 
@@ -281,7 +296,7 @@ abstract class AbstractModel extends Map implements ModelInterface
         $func = 'set' . implode('', $func);
 
         if (method_exists($this, $func)) {
-            call_user_func([$this, $func], $value);
+            call_user_func($this->$func(...), $value);
         } else {
             $this->set($key, $value);
         }
@@ -297,7 +312,7 @@ abstract class AbstractModel extends Map implements ModelInterface
         $func = 'get' . implode('', $func);
 
         if (method_exists($this, $func)) {
-            return call_user_func([$this, $func]);
+            return call_user_func($this->$func(...));
         }
 
         return $this->get($key);

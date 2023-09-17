@@ -5,6 +5,9 @@ use Pyncer\Data\Formatting\FormatterInterface;
 
 class KeyFormatter implements FormatterInterface
 {
+    /**
+     * @param array<string, string> $keys
+     */
     public function __construct(
         protected array $keys
     ) {}
@@ -17,6 +20,8 @@ class KeyFormatter implements FormatterInterface
         $newData = [];
 
         foreach ($data as $key => $value) {
+            $key = strval($key);
+
             $key = $this->keys[$key] ?? $key;
 
             $newData[$key] = $value;
@@ -35,6 +40,8 @@ class KeyFormatter implements FormatterInterface
         $keys = array_flip($this->keys);
 
         foreach ($data as $key => $value) {
+            $key = strval($key);
+
             $key = $keys[$key] ?? $key;
 
             $newData[$key] = $value;

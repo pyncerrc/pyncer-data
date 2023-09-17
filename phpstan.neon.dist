@@ -1,0 +1,31 @@
+parameters:
+    checkMissingIterableValueType: false
+    level: max
+    paths:
+        - src
+        - tests
+    ignoreErrors:
+        -
+            message: "#^Used constant Pyncer\\\\DATE_TIME_FORMAT not found\\.$#"
+            count: 1
+            path: src/Mapper/AbstractMapper.php
+        -
+            message: "#^Used constant Pyncer\\\\DATE_FORMAT not found\\.$#"
+            count: 1
+            path: src/Mapper/AbstractMapper.php
+        -
+            message: "#^Used constant Pyncer\\\\TIME_FORMAT not found\\.$#"
+            count: 1
+            path: src/Mapper/AbstractMapper.php
+        -
+            message: "#^Constant Pyncer\\\\DATE_TIME_FORMAT not found\\.$#"
+            count: 2
+            path: src/Mapper/AbstractMapper.php
+        -
+            message: "#^Constant Pyncer\\\\DATE_FORMAT not found\\.$#"
+            count: 2
+            path: src/Mapper/AbstractMapper.php
+        -
+            message: "#^Constant Pyncer\\\\TIME_FORMAT not found\\.$#"
+            count: 2
+            path: src/Mapper/AbstractMapper.php

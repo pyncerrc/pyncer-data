@@ -11,34 +11,27 @@ use function Pyncer\Array\data_explode as pyncer_array_data_explode;
 
 class OrderByQueryParam extends AbstractQueryParam
 {
-    private ?array $cleanedParts = null;
-
-    public function setQueryParamString(string $value): static
-    {
-        $this->cleanedParts = null;
-        return parent::setQueryParamString($value);
-    }
-
     public function addQueryParamString(string $value): static
     {
-        if ($this->getQueryParamString === '') {
+        if ($this->getQueryParamString() === '') {
             $this->setQueryParamString($value);
         } else {
             $this->setQueryParamString(
-                $this->queryParamString . ',' . $value
+                $this->getQueryParamString() . ',' . $value
             );
         }
 
         return $this;
     }
 
-    public function getParts(): array
+    public function getCleanQueryParamString(): string
     {
-        return $this->cleanedParts ?? parent::getParts();
+        return implode(',', $this->getParts());
     }
+
     public function hasOrderBy(string $name): bool
     {
-        foreach ($this->getParts as $part) {
+        foreach ($this->getParts() as $part) {
             if ($part[0] === $name) {
                 return true;
             }
@@ -49,7 +42,7 @@ class OrderByQueryParam extends AbstractQueryParam
     public function getOrderBy(string $name): ?array
     {
 
-        foreach ($this->getParts as $part) {
+        foreach ($this->getParts() as $part) {
             if ($part[0] === $name) {
                 return $part;
             }
@@ -89,22 +82,5 @@ class OrderByQueryParam extends AbstractQueryParam
         }
 
         return $orderByParts;
-    }
-
-    public function clean(callable $validate, bool $reset = false): void
-    {
-        if ($reset) {
-            $this->cleanedParts = null;
-        }
-
-        $newParts = [];
-
-        foreach ($this->getParts() as $value) {
-            if (call_user_func_array($validate, $value)) {
-                $newParts[] = $value;
-            }
-        }
-
-        $this->cleanedParts = $newParts;
     }
 }

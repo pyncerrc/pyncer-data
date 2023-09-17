@@ -8,27 +8,23 @@ use Pyncer\Data\Tree\DataTreeInterface;
 use Pyncer\Data\Tree\TreeInterface;
 use Pyncer\Database\ConnectionInterface;
 use Pyncer\Exception\InvalidArgumentException;
-use Pyncer\Iterable\Map;
+use Pyncer\Exception\UnexpectedValueException;
 
 use function array_key_exists;
 use function in_array;
 
 abstract class AbstractTree implements TreeInterface
 {
-    protected ConnectionInterface $connection;
-    protected bool $preload;
-    protected $items;
-    protected ?MapperQueryInterface $mapperQuery;
+    /** @var array<int, ModelInterface> **/
+    protected array $items = [];
+    protected ?MapperQueryInterface $mapperQuery = null;
+    protected bool $hasPreloaded = false;
 
     public function __construct(
-        ConnectionInterface $connection,
-        bool $preload = false
-    ) {
-        $this->connection = $connection;
-        $this->preload = $preload;
-        $this->items = null;
-        $this->mapperQuery = null;
-    }
+        protected ConnectionInterface $connection,
+        protected bool $preload = false,
+        protected string $parentIdColumn = 'parent_id',
+    ) {}
 
     public function getMapperQuery(): ?MapperQueryInterface
     {
@@ -53,14 +49,19 @@ abstract class AbstractTree implements TreeInterface
             throw new InvalidArgumentException('Id must be greater than zero or null.');
         }
 
-        $map = new Map();
+        $items = [];
 
         if ($id === null || $id === $parentId) {
-            return $map;
+            return $items;
         }
 
         $model = $this->getItem($id);
-        $id = $model->getParentId();
+
+        $id = $model[$this->parentIdColumn];
+
+        if ($id !== null && !is_int($id)) {
+            throw new UnexpectedValueException('Parent id column returned an invalid value.');
+        }
 
         while (true) {
             if (!$id || $id === $parentId) {
@@ -69,18 +70,24 @@ abstract class AbstractTree implements TreeInterface
 
             $model = $this->getItem($id);
 
-            $map->set($model->getId(), $model);
+            $items[$model->getId()] = $model;
 
-            $id = $model->getParentId();
+            $id = $model[$this->parentIdColumn];
+
+            if ($id !== null && !is_int($id)) {
+                throw new UnexpectedValueException('Parent id column returned an invalid value.');
+            }
         }
 
-        $map->reverse();
+        $items = array_reverse($items, true);
 
-        return $map;
+        return $items;
     }
     public function hasParent(?int $id, int $parentId): bool
     {
-        $ids = $this->getParents($id)->getKeys();
+        $ids = $this->getParents($id);
+
+        $ids = array_keys([...$ids]);
 
         return in_array($parentId, $ids, true);
     }
@@ -91,16 +98,22 @@ abstract class AbstractTree implements TreeInterface
             throw new InvalidArgumentException('Id must be greater than zero or null.');
         }
 
-        $map = new Map();
+        $items = [];
 
         if ($this->preload) {
             foreach ($this->getItems() as $model) {
-                if ($model->getParentId() === $id) {
-                    $map->set($model->getId(), $model);
+                $parentId = $model[$this->parentIdColumn];
+
+                if ($parentId !== null && !is_int($parentId)) {
+                    throw new UnexpectedValueException('Parent id column returned an invalid value.');
+                }
+
+                if ($parentId === $id) {
+                    $items[$model->getId()] = $model;
                 }
             }
 
-            return $map;
+            return $items;
         }
 
         $mapper = $this->forgeMapper();
@@ -111,10 +124,10 @@ abstract class AbstractTree implements TreeInterface
 
         foreach ($result as $model) {
             $this->addItem($model);
-            $map->set($model->getId(), $model);
+            $items[$model->getId()] = $model;
         }
 
-        return $map;
+        return $items;
     }
     public function getDescendents(?int $id): iterable
     {
@@ -122,20 +135,26 @@ abstract class AbstractTree implements TreeInterface
             throw new InvalidArgumentException('Id must be greater than zero or null.');
         }
 
-        $map = new Map();
+        $items = [];
 
         if ($this->preload) {
             foreach ($this->getItems() as $model) {
-                if ($model->getParentId() === $id) {
-                    $map->set($model->getId(), $model);
+                $parentId = $model[$this->parentIdColumn];
+
+                if ($parentId !== null && !is_int($parentId)) {
+                    throw new UnexpectedValueException('Parent id column returned an invalid value.');
+                }
+
+                if ($parentId === $id) {
+                    $items[$model->getId()] = $model;
 
                     foreach ($this->getDescendents($model->getId()) as $model2) {
-                        $map->set($model2->getId(), $model2);
+                        $items[$model2->getId()] = $model2;
                     }
                 }
             }
 
-            return $map;
+            return $items;
         }
 
         $mapper = $this->forgeMapper();
@@ -146,14 +165,14 @@ abstract class AbstractTree implements TreeInterface
 
         foreach ($result as $model) {
             $this->addItem($model);
-            $map->set($model->getId(), $model);
+            $items[$model->getId()] = $model;
 
             foreach ($this->getDescendents($model->getId()) as $model2) {
-                $map->set($model2->getId(), $model2);
+                $items[$model2->getId()] = $model2;
             }
         }
 
-        return $map;
+        return $items;
     }
 
     public function getItems(): iterable
@@ -165,16 +184,14 @@ abstract class AbstractTree implements TreeInterface
     protected function preloadItems(): void
     {
         if (!$this->preload) {
-            if ($this->items === null) {
-                $this->items = [];
-            }
             return;
         }
 
-        if ($this->items !== null) {
+        if ($this->hasPreloaded) {
             return;
         }
 
+        $this->hasPreloaded = true;
         $this->items = [];
 
         $mapper = $this->forgeMapper();

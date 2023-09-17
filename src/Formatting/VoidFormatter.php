@@ -4,8 +4,6 @@ namespace Pyncer\Data\Formatting;
 use Pyncer\Data\Formatting\FormatterInterface;
 use Traversable;
 
-use function iterator_to_array;
-
 class VoidFormatter implements FormatterInterface
 {
     /**
@@ -13,11 +11,8 @@ class VoidFormatter implements FormatterInterface
      */
     public function formatData(iterable $data): array
     {
-        if ($data instanceof Traversable) {
-            $data = iterator_to_array($data, true);
-        }
-
-        return $data;
+        /** @var array<string, mixed> **/
+        return [...$data];
     }
 
     /**
@@ -25,10 +20,7 @@ class VoidFormatter implements FormatterInterface
      */
     public function unformatData(iterable $data): array
     {
-        if ($data instanceof Traversable) {
-            $data = iterator_to_array($data, true);
-        }
-
-        return $data;
+        /** @var array<string, mixed> **/
+        return [...$data];
     }
 }

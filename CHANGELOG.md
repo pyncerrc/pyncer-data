@@ -1,12 +1,15 @@
 # Change Log
 
-## 1.3.0 - Unreleased
+## 1.3.0 - 2023-09-17
 
 ### Added
 
 - Added support for arrays in filter query params. (ex. $filters=state eq 'pending', 'enabled')
 - Added SideModelMap to better support mixed data types.
 - Added default 'id' filter implementationt to RequestMapperQuery.
+- Added getCleanQueryParamString function to query param classes.
+- Added some PHPUnit tests.
+- PHPStan static analysis.
 
 ### Changed
 

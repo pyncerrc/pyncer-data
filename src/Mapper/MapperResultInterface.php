@@ -5,6 +5,9 @@ use Countable;
 use Iterator;
 use Pyncer\Data\Model\ModelInterface;
 
+/**
+ * @extends Iterator<int, ModelInterface>
+ */
 interface MapperResultInterface extends Iterator, Countable
 {
     public function getData(): array;

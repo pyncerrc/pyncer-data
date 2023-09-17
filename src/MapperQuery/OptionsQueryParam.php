@@ -9,31 +9,24 @@ use function Pyncer\Array\data_explode as pyncer_array_data_explode;
 
 class OptionsQueryParam extends AbstractQueryParam
 {
-    private ?array $cleanedParts = null;
-
-    public function setQueryParamString(string $value): static
-    {
-        $this->cleanedParts = null;
-        return parent::setQueryParamString($value);
-    }
-
     public function addQueryParamString(string $value): static
     {
-        if ($this->getQueryParamString === '') {
+        if ($this->getQueryParamString() === '') {
             $this->setQueryParamString($value);
         } else {
             $this->setQueryParamString(
-                $this->queryParamString . ',' . $value
+                $this->getQueryParamString() . ',' . $value
             );
         }
 
         return $this;
     }
 
-    public function getParts(): array
+    public function getCleanQueryParamString(): string
     {
-        return $this->cleanedParts ?? parent::getParts();
+        return implode(',', $this->getParts());
     }
+
     public function hasOption(string $option): bool
     {
         return in_array($option, $this->getParts());
@@ -47,20 +40,10 @@ class OptionsQueryParam extends AbstractQueryParam
 
     public function clean(callable $validate, bool $reset = false): void
     {
-        if ($reset) {
-            $this->cleanedParts = null;
+        parent::clean($validate, $reset);
+
+        if ($this->cleanParts !== null) {
+            $this->cleanParts = array_unique($this->cleanParts);
         }
-
-        $newParts = [];
-
-        $parts = array_unique($this->getParts());
-
-        foreach ($parts as $value) {
-            if (call_user_func($validate, $value)) {
-                $newParts[] = $value;
-            }
-        }
-
-        $this->cleanedParts = $newParts;
     }
 }
