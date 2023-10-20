@@ -414,6 +414,10 @@ class FiltersQueryParam extends AbstractQueryParam
 
                 // Child (bracket) map insert
                 if (count($and) == 1) {
+                    if (!array_key_exists($and[0], $this->bracketMap)) {
+                        throw new InvalidArgumentException('Invalid filter value.');
+                    }
+
                     $conditions = array_merge(
                         $conditions,
                         $this->bracketMap[$and[0]]
