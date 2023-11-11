@@ -1,5 +1,11 @@
 # Change Log
 
+## 1.3.1 - Unreleased
+
+### Added
+
+- Added more format options to AbstractMapper::formatData() function.
+
 ## 1.3.0 - 2023-09-17
 
 ### Added

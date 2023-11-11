@@ -1,7 +1,7 @@
 <?php
 namespace Pyncer\Data\Mapper;
 
-use DateTime;
+use DateTimeInterface;
 use Pyncer\Data\Mapper\MapperInterface;
 use Pyncer\Data\Mapper\MapperResult;
 use Pyncer\Data\Mapper\MapperResultInterface;
@@ -13,14 +13,16 @@ use Pyncer\Database\QueryResultInterface;
 use Pyncer\Database\Record\SelectQueryInterface;
 use Pyncer\Exception\InvalidArgumentException;
 use Pyncer\Exception\LogicException;
-use Traversable;
+use Stringable;
 
 use function array_map;
 use function call_user_func;
 use function intval;
 use function is_int;
+use function is_iterable;
 use function preg_replace;
 use function Pyncer\date_time as pyncer_date_time;
+use function strval;
 use function substr;
 
 use const Pyncer\DATE_TIME_FORMAT as PYNCER_DATE_TIME_FORMAT;
@@ -89,7 +91,6 @@ abstract class AbstractMapper implements MapperInterface
         }
 
         $data = $this->unformatData($data);
-
         $model = $this->forgeModel($data);
 
         if ($mapperQuery !== null) {
@@ -360,6 +361,13 @@ abstract class AbstractMapper implements MapperInterface
                 $data[$key] = $this->getConnection()->date($value, true);
             } elseif (substr($key, -11) === '_time_local') {
                 $data[$key] = $this->getConnection()->time($value, true);
+            } elseif ($value instanceof DateTimeInterface) {
+                $data[$key] = $this->getConnection()->dateTime($value);
+            } elseif ($value instanceof Stringable) {
+                $data[$key] = strval($value);
+            } elseif (is_iterable($value)) {
+                $value = [...$value];
+                $data[$key] = json_encode($value);
             }
         }
 
