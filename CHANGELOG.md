@@ -1,10 +1,13 @@
 # Change Log
 
-## 1.3.1 - Unreleased
+## 1.4.0 - Unreleased
 
 ### Added
 
-- Added more format options to AbstractMapper::formatData() function.
+- Added more format options to AbstractMapper::formatData() method.
+- Added QueryParams class.
+- Added setQueryParams method to AbstractRequestMapperQuery class.
+- Added AbstractAliasTree class and AliasTreeInterface interface.
 
 ## 1.3.0 - 2023-09-17
 
