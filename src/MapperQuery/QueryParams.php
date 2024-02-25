@@ -20,7 +20,7 @@ class QueryParams
             return null;
         }
 
-        return new FitlersQueryParam($this->filters);
+        return new FiltersQueryParam($this->filters);
     }
 
     public function getOptions(): ?OptionsQueryParam

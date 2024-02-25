@@ -80,12 +80,14 @@ abstract class AbstractRequestMapperQuery extends AbstractMapperQuery
         }
     }
 
-    public function setQueryParams(QueryParams $queryParams)
+    public function setQueryParams(QueryParams $queryParams): static
     {
         $this->setFilters($queryParams->getFilters());
         $this->setOptions($queryParams->getOptions());
         $this->setOrderBy($queryParams->getOrderBy());
         $this->setQueryMode($queryParams->getQueryMode());
+
+        return $this;
     }
 
     public function getQueryMode(): ?string
