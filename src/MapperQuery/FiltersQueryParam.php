@@ -498,6 +498,12 @@ class FiltersQueryParam extends AbstractQueryParam
                 case 'ne':
                     $operator = '=';
                     break;
+                case 'lk':
+                    $operator = '!~';
+                    break;
+                case 'nl':
+                    $operator = '~';
+                    break;
                 default:
                     throw new InvalidArgumentException('Invalid filter operator value.');
             }
@@ -520,6 +526,12 @@ class FiltersQueryParam extends AbstractQueryParam
                     break;
                 case 'ne':
                     $operator = '!=';
+                    break;
+                case 'lk':
+                    $operator = '~';
+                    break;
+                case 'nl':
+                    $operator = '!~';
                     break;
                 default:
                     throw new InvalidArgumentException('Invalid filter operator value.');
@@ -551,6 +563,12 @@ class FiltersQueryParam extends AbstractQueryParam
                 break;
             case '!=':
                 $operator = 'ne';
+                break;
+            case '~':
+                $operator = 'lk';
+                break;
+            case '!~':
+                $operator = 'nl';
                 break;
             default:
                 throw new InvalidArgumentException('Invalid query operator value.');

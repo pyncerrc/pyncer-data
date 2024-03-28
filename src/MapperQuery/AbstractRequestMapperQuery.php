@@ -192,6 +192,10 @@ abstract class AbstractRequestMapperQuery extends AbstractMapperQuery
         string $operator
     ): bool
     {
+        if ($operator === '~' || $operator === '!~') {
+            return false;
+        }
+
         return ($left === 'id' && is_int($right));
     }
 
@@ -273,7 +277,13 @@ abstract class AbstractRequestMapperQuery extends AbstractMapperQuery
     ): SelectQueryInterface
     {
         $where = $query->getWhere();
-        $where->compare($left, $right, $operator);
+        if ($operator === '~') {
+            $where->contains($left, $right);
+        } elseif ($operator === '!~') {
+            $where->not()->contains($left, $right);
+        } else {
+            $where->compare($left, $right, $operator);
+        }
 
         return $query;
     }
