@@ -1,6 +1,6 @@
 # Change Log
 
-## 1.4.0 - Unreleased
+## 1.4.0 - 2024-11-15
 
 ### Added
 
@@ -8,7 +8,8 @@
 - Added QueryParams class.
 - Added setQueryParams method to AbstractRequestMapperQuery class.
 - Added AbstractAliasTree class and AliasTreeInterface interface.
-- Added 'like' (lk / ~) and 'not like' (nl / !~) operators to FiltersQueryParam.
+- Added 'like' (lk / \~) and 'not like' (nl / !\~) operators to FiltersQueryParam.
+- Added AbstractModel::hasSideModel() function.
 
 ## 1.3.0 - 2023-09-17
 
