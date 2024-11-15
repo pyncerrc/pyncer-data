@@ -242,6 +242,11 @@ abstract class AbstractModel extends Map implements ModelInterface
         return $this->getSideModels()->set($name, $value);
     }
 
+    public function hasSideModel(string $key): bool
+    {
+        return $this->getSideModels()->has($key);
+    }
+
     public function hasSideModels(string ...$keys): bool
     {
         return $this->getSideModels()->has(...$keys);
