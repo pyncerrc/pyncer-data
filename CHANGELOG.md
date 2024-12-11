@@ -4,7 +4,7 @@
 
 ### Fixed
 
-- Removed columns method call when overriding query.
+- Removed columns method call when columns are already when overriding query.
 
 ## 1.4.0 - 2024-11-15
 
