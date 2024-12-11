@@ -213,7 +213,6 @@ abstract class AbstractRequestMapperQuery extends AbstractMapperQuery
         SelectQueryInterface $query
     ): SelectQueryInterface
     {
-        $query->columns('*');
         $query = $this->applyFilters($query);
         $query = $this->applyOptions($query);
         $query = $this->applyOrderBy($query);

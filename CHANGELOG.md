@@ -1,5 +1,11 @@
 # Change Log
 
+## 1.4.1 - Unreleased
+
+### Fixed
+
+- Removed columns method call when overriding query.
+
 ## 1.4.0 - 2024-11-15
 
 ### Added
