@@ -23,7 +23,7 @@ abstract class AbstractRequestMapperQuery extends AbstractMapperQuery
     protected string $prefix;
 
     private ?string $queryMode = null;
-    private bool $resetRequired = true;
+    private bool $cleanReset = false;
 
     private ?FiltersQueryParam $filters = null;
     private ?OptionsQueryParam $options = null;
@@ -102,7 +102,7 @@ abstract class AbstractRequestMapperQuery extends AbstractMapperQuery
 
         if ($this->queryMode !== $value) {
             $this->queryMode = $value;
-            $this->resetRequired = true;
+            $this->cleanReset = true;
         }
 
         return $this;
@@ -126,7 +126,7 @@ abstract class AbstractRequestMapperQuery extends AbstractMapperQuery
             return $this;
         }
 
-        $filters->addQueryParamString($value->getQueryParamString());
+        $filters->addQueryParam($value);
 
         return $this;
     }
@@ -149,7 +149,7 @@ abstract class AbstractRequestMapperQuery extends AbstractMapperQuery
             return $this;
         }
 
-        $options->addQueryParamString($value->getQueryParamString());
+        $options->addQueryParam($value);
 
         return $this;
     }
@@ -172,7 +172,7 @@ abstract class AbstractRequestMapperQuery extends AbstractMapperQuery
             return $this;
         }
 
-        $orderBy->addQueryParamString($value->getQueryParamString());
+        $orderBy->addQueryParam($value);
 
         return $this;
     }
@@ -219,7 +219,7 @@ abstract class AbstractRequestMapperQuery extends AbstractMapperQuery
         $query = $this->applyFilters($query);
         $query = $this->applyOptions($query);
         $query = $this->applyOrderBy($query);
-        $this->resetRequired = false;
+        $this->cleanReset = false;
 
         return $query;
     }
@@ -232,11 +232,9 @@ abstract class AbstractRequestMapperQuery extends AbstractMapperQuery
             return $query;
         }
 
-        if ($this->resetRequired) {
-            $this->getFilters()->clean(function(...$values) {
-                return $this->isValidFilter(...$values);
-            }, true);
-        }
+        $this->getFilters()->clean(function(...$values) {
+            return $this->isValidFilter(...$values);
+        }, $this->cleanReset);
 
         $parts = $this->getFilters()->getParts();
 
@@ -298,11 +296,9 @@ abstract class AbstractRequestMapperQuery extends AbstractMapperQuery
             return $query;
         }
 
-        if ($this->resetRequired) {
-            $this->getOptions()->clean(function(...$values) {
-                return $this->isValidOption(...$values);
-            }, true);
-        }
+        $this->getOptions()->clean(function(...$values) {
+            return $this->isValidOption(...$values);
+        }, $this->cleanReset);
 
         $parts = $this->getOptions()->getParts();
 
@@ -327,11 +323,9 @@ abstract class AbstractRequestMapperQuery extends AbstractMapperQuery
             return $query;
         }
 
-        if ($this->resetRequired) {
-            $this->getOrderBy()->clean(function(...$values) {
-                return $this->isValidOrderBy(...$values);
-            }, true);
-        }
+        $this->getOrderBy()->clean(function(...$values) {
+            return $this->isValidOrderBy(...$values);
+        }, $this->cleanReset);
 
         $parts = $this->getOrderBy()->getParts();
 

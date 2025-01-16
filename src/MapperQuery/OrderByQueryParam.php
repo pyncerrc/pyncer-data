@@ -11,28 +11,36 @@ use function Pyncer\Array\data_explode as pyncer_array_data_explode;
 
 class OrderByQueryParam extends AbstractQueryParam
 {
-    public function addQueryParamString(string $value): static
+    protected function mergeQueryParamStrings(
+        string $queryParamString1,
+        string $queryParamString2
+    ): string
     {
-        if ($this->getQueryParamString() === '') {
-            $this->setQueryParamString($value);
-        } else {
-            $this->setQueryParamString(
-                $this->getQueryParamString() . ',' . $value
-            );
-        }
-
-        return $this;
+        return trim($queryParamString1) . ',' . trim($queryParamString2);
     }
 
-    public function getCleanQueryParamString(): string
+    protected function mergeQueryParamParts(
+        array $queryParamParts1,
+        array $queryParamParts2,
+    ): array
+    {
+        return array_merge(
+            array_values($queryParamParts1),
+            array_values($queryParamParts2),
+        );
+    }
+
+    protected function buildQueryParamStringFromParts(
+        array $queryParamParts,
+    ): array
     {
         $parts = [];
 
-        foreach ($this->getParts() as $part) {
-            $parts[] = $part[0] . ($part[0] === '>' ? ' asc' : ' desc');
+        foreach ($queryParamParts as $part) {
+            $parts[] = $part[0] . ($part[1] === '>' ? ' asc' : ' desc');
         }
 
-        return implode(', ', $parts);
+        return implode(',', $parts);
     }
 
     public function hasOrderBy(string $name): bool

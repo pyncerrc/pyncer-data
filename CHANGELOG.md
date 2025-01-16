@@ -2,9 +2,17 @@
 
 ## 1.4.1 - Unreleased
 
+### Added
+- Added addQueryParam method to AbstractQueryParam class.
+
+### Changed
+
+- AbstractQueryParam now implements a QueryParamInterface.
+
 ### Fixed
 
-- Removed columns method call when columns are already when overriding query.
+- Removed columns method call when columns are already set when overriding query.
+- Fixed adding query params to existing query params not preserving clean state.
 
 ## 1.4.0 - 2024-11-15
 

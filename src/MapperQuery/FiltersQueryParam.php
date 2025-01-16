@@ -27,25 +27,57 @@ class FiltersQueryParam extends AbstractQueryParam
     private array $stringMap;
     private array $bracketMap;
 
-    public function addQueryParamString(string $value): static
+    protected function mergeQueryParamStrings(
+        string $queryParamString1,
+        string $queryParamString2
+    ): string
     {
-        if ($this->queryParamString === '') {
-            $this->setQueryParamString($value);
-        } else {
-            $this->setQueryParamString(
-                '(' . $this->queryParamString . ') and (' . $value . ')'
-            );
-        }
-
-        return $this;
+        return '(' . $queryParamString1 . ') and (' . $queryParamString2 . ')';
     }
 
-    public function getCleanQueryParamString(): string
+    protected function mergeQueryParamParts(
+        array $queryParamParts1,
+        array $queryParamParts2,
+    ): array
+    {
+        if (!$queryParamParts1) {
+            return $queryParamParts2;
+        }
+
+        if (!$queryParamParts2) {
+            return $queryParamParts1;
+        }
+
+        if ($queryParamParts1[0][0] === '(' &&
+            $queryParamParts1[0][1] === 'AND'
+        ) {
+            unset($queryParamParts1[count($queryParamParts1) - 1]);
+            unset($queryParamParts1[0]);
+        }
+
+        if ($queryParamParts2[0][0] === '(' &&
+            $queryParamParts2[0][1] === 'AND'
+        ) {
+            unset($queryParamParts2[count($queryParamParts2) - 1]);
+            unset($queryParamParts2[0]);
+        }
+
+        return array_merge(
+            [['(', 'AND']],
+            array_values($queryParamParts1),
+            array_values($queryParamParts2),
+            [[')', 'AND']],
+        );
+    }
+
+    protected function buildQueryParamStringFromParts(
+        array $queryParamParts,
+    ): array
     {
         $queryParam = [];
         $depths = ['and'];
 
-        foreach ($this->getParts() as $part) {
+        foreach ($queryParamParts as $part) {
             if ($part[0] === '(') {
                 if (!$queryParam) {
                     $queryParam[] = '(';

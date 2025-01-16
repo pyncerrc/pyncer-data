@@ -9,22 +9,30 @@ use function Pyncer\Array\data_explode as pyncer_array_data_explode;
 
 class OptionsQueryParam extends AbstractQueryParam
 {
-    public function addQueryParamString(string $value): static
+    protected function mergeQueryParamStrings(
+        string $queryParamString1,
+        string $queryParamString2
+    ): string
     {
-        if ($this->getQueryParamString() === '') {
-            $this->setQueryParamString($value);
-        } else {
-            $this->setQueryParamString(
-                $this->getQueryParamString() . ',' . $value
-            );
-        }
-
-        return $this;
+        return trim($queryParamString1) . ',' . trim($queryParamString2);
     }
 
-    public function getCleanQueryParamString(): string
+    protected function mergeQueryParamParts(
+        array $queryParamParts1,
+        array $queryParamParts2,
+    ): array
     {
-        return implode(', ', $this->getParts());
+        return array_merge(
+            array_values($queryParamParts1),
+            array_values($queryParamParts2),
+        );
+    }
+
+    protected function buildQueryParamStringFromParts(
+        array $queryParamParts,
+    ): array
+    {
+        return implode(',', $queryParamParts);
     }
 
     public function hasOption(string $option): bool
