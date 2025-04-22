@@ -7,14 +7,15 @@
 - Added addQueryParam method to AbstractQueryParam class.
 - Fixed deprecated implicitly marked nullable parameters.
 
-### Changed
-
-- AbstractQueryParam now implements a QueryParamInterface.
-
 ### Fixed
 
 - Removed columns method call when columns are already set when overriding query.
 - Fixed adding query params to existing query params not preserving clean state.
+
+### Changed
+
+- AbstractQueryParam now implements a QueryParamInterface.
+- Updated psr/http-message to 2.0.
 
 ## 1.4.0 - 2024-11-15
 
