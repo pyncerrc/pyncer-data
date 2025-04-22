@@ -3,7 +3,9 @@
 ## 1.4.1 - Unreleased
 
 ### Added
+
 - Added addQueryParam method to AbstractQueryParam class.
+- Fixed deprecated implicitly marked nullable parameter.
 
 ### Changed
 

@@ -63,7 +63,7 @@ interface MapperInterface
     public function selectIndexed(
         int $count,
         int $offset = 0,
-        MapperQueryInterface $mapperQuery = null
+        ?MapperQueryInterface $mapperQuery = null
     ): MapperResultInterface;
 
     public function selectNumRows(
