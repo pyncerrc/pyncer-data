@@ -5,7 +5,7 @@
 ### Added
 
 - Added addQueryParam method to AbstractQueryParam class.
-- Fixed deprecated implicitly marked nullable parameter.
+- Fixed deprecated implicitly marked nullable parameters.
 
 ### Changed
 

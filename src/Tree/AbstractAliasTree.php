@@ -236,7 +236,7 @@ abstract class AbstractAliasTree extends AbstractTree implements
 
     protected function getItemFromAliasPathAndColumns(
         string $path,
-        iterable $columns = null
+        ?iterable $columns = null
     ): ModelInterface
     {
         $path = trim($path, '/');
