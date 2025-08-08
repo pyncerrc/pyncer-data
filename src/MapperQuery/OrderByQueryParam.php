@@ -92,7 +92,7 @@ class OrderByQueryParam extends AbstractQueryParam
                 $value[1] = 'asc';
             }
 
-            $orderByParts[] = [$value[0], ($value[1] === 'desc' ? '<' : '>')];
+            $orderByParts[] = [$value[0], ($value[1] === 'asc' ? '>' : '<')];
         }
 
         return $orderByParts;

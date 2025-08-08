@@ -14,8 +14,7 @@ interface MapperInterface
 
     public function forgeResult(
         QueryResultInterface $result,
-        ?MapperQueryInterface
-        $mapperQuery = null
+        ?MapperQueryInterface $mapperQuery = null
     ): MapperResultInterface;
 
     public function forgeModelFromResult(
