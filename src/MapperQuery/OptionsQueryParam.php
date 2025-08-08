@@ -30,7 +30,7 @@ class OptionsQueryParam extends AbstractQueryParam
 
     protected function buildQueryParamStringFromParts(
         array $queryParamParts,
-    ): array
+    ): string
     {
         return implode(',', $queryParamParts);
     }

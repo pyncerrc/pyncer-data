@@ -32,7 +32,7 @@ class OrderByQueryParam extends AbstractQueryParam
 
     protected function buildQueryParamStringFromParts(
         array $queryParamParts,
-    ): array
+    ): string
     {
         $parts = [];
 

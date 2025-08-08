@@ -1,5 +1,11 @@
 # Change Log
 
+## 1.4.2 - 2025-08-08
+
+### Fixed
+
+- Fixed bad return type hint on AbstractQueryParam::buildQueryParamStringFromParts method.
+
 ## 1.4.1 - 2025-08-08
 
 ### Added

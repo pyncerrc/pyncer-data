@@ -98,7 +98,7 @@ abstract class AbstractQueryParam implements QueryParamInterface
 
     abstract protected function buildQueryParamStringFromParts(
         array $queryParamParts,
-    ): array;
+    ): string;
 
     public function getParts(): array
     {

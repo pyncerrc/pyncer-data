@@ -108,7 +108,7 @@ class QueryParamTest extends TestCase
 
         $this->assertEquals(
             $options->getCleanQueryParamString(),
-            'include-test, include-bar',
+            'include-test,include-bar',
         );
     }
 
@@ -150,7 +150,7 @@ class QueryParamTest extends TestCase
 
         $this->assertEquals(
             $orderBy->getCleanQueryParamString(),
-            "a desc, c desc"
+            "a desc,c desc"
         );
     }
 }

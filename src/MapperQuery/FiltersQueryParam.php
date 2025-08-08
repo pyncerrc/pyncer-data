@@ -72,7 +72,7 @@ class FiltersQueryParam extends AbstractQueryParam
 
     protected function buildQueryParamStringFromParts(
         array $queryParamParts,
-    ): array
+    ): string
     {
         $queryParam = [];
         $depths = ['and'];
