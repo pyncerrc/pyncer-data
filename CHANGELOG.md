@@ -1,5 +1,18 @@
 # Change Log
 
+## 1.5.0 - 2025-12-19
+
+### Added
+
+- Models can now set arrays.
+- Added empty array to model nullify method.
+- Added support for models in model extra data.
+
+### Changed
+
+- Internal handling of side model data and extra data now use same map.
+- AbstractQueryParam constructor queryParamString parameter now defaults to an empty string.
+
 ## 1.4.2 - 2025-08-08
 
 ### Fixed

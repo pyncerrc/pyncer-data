@@ -4,12 +4,13 @@ namespace Pyncer\Data\Model;
 use ArgumentCountError;
 use BadMethodCallException;
 use Pyncer\Data\Model\ModelInterface;
-use Pyncer\Data\Model\SideModelMap;
+use Pyncer\Data\DataMap;
 use Pyncer\Exception\InvalidArgumentException;
 use Pyncer\Exception\OutOfBoundsException;
 use Pyncer\Exception\LogicException;
 use Pyncer\Iterable\Map;
 use Pyncer\Iterable\MapInterface;
+use Stringable;
 
 use function array_key_exists;
 use function array_map;
@@ -23,17 +24,17 @@ use function Pyncer\Utility\to_snake_case as pyncer_to_snake_case;
 
 abstract class AbstractModel extends Map implements ModelInterface
 {
-    protected SideModelMap $sideModels;
+    protected DataMap $sideModels;
+    protected DataMap $extraData;
     protected bool $isDefault;
-    protected array $extraData;
 
     private static bool $constructIsDefault = false;
 
     public function __construct(iterable $values = [])
     {
         $this->isDefault = self::$constructIsDefault;
-        $this->sideModels = new SideModelMap();
-        $this->extraData = [];
+        $this->sideModels = new DataMap();
+        $this->extraData = new DataMap();
 
         parent::__construct($values);
     }
@@ -53,9 +54,9 @@ abstract class AbstractModel extends Map implements ModelInterface
 
     public function set(string $key, mixed $value): static
     {
-        if (!is_null($value) && !is_scalar($value)) {
+        if (!is_null($value) && !is_scalar($value) && !is_array($value)) {
             throw new LogicException(
-                'Internal data array can only have scalar and null values.'
+                'Internal data array can only have scalar, array, and null values.'
             );
         }
 
@@ -117,7 +118,7 @@ abstract class AbstractModel extends Map implements ModelInterface
 
     protected function nullify(mixed $value): mixed
     {
-        if ($value === '' || $value === 0 || $value === 0.0) {
+        if ($value === '' || $value === 0 || $value === 0.0 || $value === []) {
             $value = null;
         }
 
@@ -180,9 +181,8 @@ abstract class AbstractModel extends Map implements ModelInterface
     {
         $data = $this->getData();
 
-        $sideModelData = $this->getSideModels()->getData();
-
         // Do not allow side models to override default data
+        $sideModelData = $this->getSideModels()->getData();
         foreach ($sideModelData as $key => $value) {
             if (!$this->has($key)) {
                 $data[$key] = $value;
@@ -190,7 +190,8 @@ abstract class AbstractModel extends Map implements ModelInterface
         }
 
         // Do not allow extra data to override default data
-        foreach ($this->extraData as $key => $value) {
+        $extraData = $this->getExtraData();
+        foreach ($extraData as $key => $value) {
             if (!$this->has($key)) {
                 $data[$key] = $value;
             }
@@ -254,21 +255,16 @@ abstract class AbstractModel extends Map implements ModelInterface
 
     public function getExtraData(): array
     {
-        return $this->extraData;
+        return $this->extraData->getData();
     }
     public function setExtraData(iterable ...$values): static
     {
-        $this->extraData = [];
-        return $this->addExtraData(...$values);
+        $this->extraData->setData(...$values);
+        return $this;
     }
     public function addExtraData(iterable ...$values): static
     {
-        foreach ($values as $iterableValues) {
-            foreach ($iterableValues as $key => $value) {
-                $this->extraData[$key] = $value;
-            }
-        }
-
+        $this->extraData->addData(...$values);
         return $this;
     }
 

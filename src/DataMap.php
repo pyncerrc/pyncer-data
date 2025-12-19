@@ -1,5 +1,5 @@
 <?php
-namespace Pyncer\Data\Model;
+namespace Pyncer\Data;
 
 use Pyncer\Data\Mapper\MapperResultInterface;
 use Pyncer\Data\Model\ModelInterface;
@@ -13,7 +13,7 @@ use function is_array;
 use function iterator_to_array;
 use function strval;
 
-class SideModelMap extends Map
+class DataMap extends Map
 {
     /**
      * @inheritDoc

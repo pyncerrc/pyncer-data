@@ -11,7 +11,7 @@ abstract class AbstractQueryParam implements QueryParamInterface
     private ?array $parts = null;
     protected ?array $cleanParts = null;
 
-    public function __construct(string $queryParamString)
+    public function __construct(string $queryParamString = '')
     {
         $this->setQueryParamString($queryParamString);
     }
