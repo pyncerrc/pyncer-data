@@ -68,6 +68,21 @@ class QueryParamTest extends TestCase
             $filters->getCleanQueryParamString(),
             "( a eq 'b' and c eq 'd' )"
         );
+
+        $filters = "a eq 'b\\'c'";
+        $filters = new \Pyncer\Data\MapperQuery\FiltersQueryParam($filters);
+
+        $this->assertEquals(
+            $filters->getParts(),
+            [
+                ['a', 'b\'c', '='],
+            ]
+        );
+
+        $this->assertEquals(
+            $filters->getCleanQueryParamString(),
+            "a eq 'b\'c'"
+        );
     }
 
     public function testOptionsQueryParam(): void

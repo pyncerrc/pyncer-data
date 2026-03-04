@@ -268,6 +268,13 @@ class FiltersQueryParam extends AbstractQueryParam
                     $inString = false;
 
                     $string = substr($queryParamString, $pos, $i - $pos);
+
+                    $string = str_replace(
+                        ['\\\'', '\\\\'],
+                        ['\'', '\\'],
+                        $string,
+                    );
+
                     $md5 = md5($string);
 
                     $this->stringMap[$md5] = $string;
@@ -676,6 +683,12 @@ class FiltersQueryParam extends AbstractQueryParam
 
             return implode(', ', $values);
         }
+
+        $value = str_replace(
+            ['\\', '\''],
+            ['\\\\', '\\\''],
+            $value,
+        );
 
         return '\'' . $value . '\'';
     }

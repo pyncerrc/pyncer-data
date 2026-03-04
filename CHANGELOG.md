@@ -1,5 +1,11 @@
 # Change Log
 
+## 1.5.1 - Unreleased
+
+### Fixed
+
+- Fixed FiltersQueryParam not removing escape characters.
+
 ## 1.5.0 - 2025-12-19
 
 ### Added
